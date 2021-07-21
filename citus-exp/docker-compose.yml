@@ -72,10 +72,14 @@ services:
     pull_policy: always
     environment:
       HEDERA_MIRROR_REST_DB_HOST: master
+      REST_PASSWORD: mirror_api_pass
+      REST_USERNAME: mirror_api
     restart: unless-stopped
     tty: true
     ports:
       - 5551:5551
+    volumes:
+      - ../hedera-mirror-rest/config/application.yml:/home/node/app/config/application.yml
 
 volumes:
   healthcheck-volume:
