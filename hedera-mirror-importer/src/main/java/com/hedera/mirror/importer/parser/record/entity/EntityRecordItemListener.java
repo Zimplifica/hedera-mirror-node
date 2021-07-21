@@ -337,6 +337,7 @@ public class EntityRecordItemListener implements RecordItemListener {
         topicMessage.setRunningHash(receipt.getTopicRunningHash().toByteArray());
         topicMessage.setRunningHashVersion(runningHashVersion);
         topicMessage.setSequenceNumber(receipt.getTopicSequenceNumber());
+        topicMessage.setEntityId(EntityId.of(topicId));
         topicMessage.setTopicNum((int) topicId.getTopicNum());
         entityListener.onTopicMessage(topicMessage);
     }

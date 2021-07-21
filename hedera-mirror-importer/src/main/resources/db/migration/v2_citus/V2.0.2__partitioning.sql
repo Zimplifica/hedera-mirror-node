@@ -42,12 +42,21 @@ create table crypto_transfer_2021 partition of crypto_transfer
 
 -- entity
 -- should we partition to get ahead of the curve?
-create table entity_2019 partition of entity
-    for values from (0) to (1577836799000000000);
-create table entity_2020 partition of entity
-    for values from (1577836799000000000) to (1609459199000000000);
-create table entity_2021 partition of entity
-    for values from (1609459199000000000) to (1640995199000000000);
+-- create table entity_2019 partition of entity
+--     for values from (0) to (1577836799000000000);
+-- create table entity_2020 partition of entity
+--     for values from (1577836799000000000) to (1609459199000000000);
+-- create table entity_2021 partition of entity
+--     for values from (1609459199000000000) to (1640995199000000000);
+
+-- partial data issue exists since timestamps are null in those cases. Partitioning by id instead?
+-- Should be do by 1k, 10k, 100k or 1M?
+create table entity_0 partition of entity
+    for values from (0) to (100000);
+create table entity_1 partition of entity
+    for values from (100000) to (200000);
+create table entity_2 partition of entity
+    for values from (200000) to (300000);
 
 -- record_file
 create table rec_file_2019 partition of record_file

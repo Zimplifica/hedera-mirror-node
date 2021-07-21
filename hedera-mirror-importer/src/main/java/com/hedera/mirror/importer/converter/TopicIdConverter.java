@@ -20,25 +20,17 @@ package com.hedera.mirror.importer.converter;
  * ‍
  */
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import javax.inject.Named;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 
-import com.hedera.mirror.importer.domain.EntityId;
+import com.hedera.mirror.importer.domain.EntityTypeEnum;
 
 @Named
-public class EntityIdSerializer extends JsonSerializer<EntityId> {
-    public static final EntityIdSerializer INSTANCE = new EntityIdSerializer();
+@javax.persistence.Converter
+@ConfigurationPropertiesBinding
+public class TopicIdConverter extends AbstractEntityIdConverter {
 
-    @Override
-    public void serialize(EntityId value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeNumber(value.getId());
-//        if (!EntityId.isEmpty(value)) {
-//            gen.writeNumber(value.getId());
-//        } else {
-//            gen.writeNull();
-//        }
+    public TopicIdConverter() {
+        super(EntityTypeEnum.TOPIC);
     }
 }

@@ -129,7 +129,7 @@ create table if not exists entity
     shard                 bigint          not null,
     submit_key            bytea,
     type                  integer         not null
-) partition by range (created_timestamp);
+) partition by range (id);
 comment on table entity is 'Network entity with state';
 
 -- event_file
@@ -339,7 +339,7 @@ comment on table token_transfer is 'Crypto account token transfers';
 create table if not exists topic_message
 (
     consensus_timestamp   bigint   not null,
-    entity_id             bigint   null,
+    entity_id             bigint   not null,
     realm_num             smallint not null,
     topic_num             integer  not null,
     message               bytea    not null,

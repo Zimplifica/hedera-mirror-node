@@ -51,7 +51,7 @@ create index if not exists cust_fee__token_timestamp
 
 -- entity
 alter table entity
-    add constraint entity__pk primary key (id, created_timestamp);
+    add constraint entity__pk primary key (id);
 -- Enforce lowercase hex representation by constraint rather than making indexes on lower(ed25519).
 alter table entity
     add constraint c__entity__lower_ed25519
@@ -61,7 +61,7 @@ create index if not exists entity__id_type
 create index if not exists entity__pkey
     on entity (public_key) where public_key is not null;
 create unique index if not exists entity__shard_realm_num
-    on entity (shard, realm, num, id, created_timestamp);
+    on entity (shard, realm, num, id);
 -- have to add id when creating unique indexes due to partitioning
 
 -- event_file

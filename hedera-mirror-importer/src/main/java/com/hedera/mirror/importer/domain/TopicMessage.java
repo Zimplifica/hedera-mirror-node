@@ -35,6 +35,7 @@ import org.springframework.data.domain.Persistable;
 import com.hedera.mirror.importer.converter.AccountIdConverter;
 import com.hedera.mirror.importer.converter.AccountIdDeserializer;
 import com.hedera.mirror.importer.converter.EntityIdSerializer;
+import com.hedera.mirror.importer.converter.TopicIdConverter;
 
 @Data
 @Entity
@@ -49,6 +50,10 @@ public class TopicMessage implements Persistable<Long>, StreamMessage {
 
     @Id
     private long consensusTimestamp;
+
+    @Convert(converter = TopicIdConverter.class)
+    @JsonSerialize(using = EntityIdSerializer.class)
+    private EntityId entityId;
 
     private byte[] message;
 
