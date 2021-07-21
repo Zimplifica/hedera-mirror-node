@@ -32,6 +32,6 @@ public class UnknownDataTransactionHandler implements TransactionHandler {
 
     @Override
     public EntityId getEntity(RecordItem recordItem) {
-        return null;
+        return EntityId.EMPTY;
     }
 }

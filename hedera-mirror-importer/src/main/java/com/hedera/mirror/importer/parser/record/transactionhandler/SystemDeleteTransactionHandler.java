@@ -41,6 +41,6 @@ public class SystemDeleteTransactionHandler extends AbstractEntityCrudTransactio
         } else if (systemDelete.hasFileID()) {
             return EntityId.of(systemDelete.getFileID());
         }
-        return null;
+        return EntityId.EMPTY;
     }
 }

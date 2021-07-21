@@ -42,7 +42,7 @@ public class SystemUndeleteTransactionHandler extends AbstractEntityCrudTransact
         } else if (systemUndelete.hasFileID()) {
             return EntityId.of(systemUndelete.getFileID());
         }
-        return null;
+        return EntityId.EMPTY;
     }
 
     @Override
