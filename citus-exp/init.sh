@@ -75,11 +75,17 @@ alter default privileges in schema :dbSchema grant usage on sequences to readwri
 alter database :dbName set search_path = :dbSchema, public;
 alter database :dbName set :dbName.multi_task_query_log_level = 'error';
 
+-- add worker nodes. Hard coded for now and varies based on scale deployment count
+-- select * from citus_add_node('citus-exp_worker_1', 5432);
+-- select * from citus_add_node('citus-exp_worker_2', 5432);
+-- select * from citus_add_node('citus-exp_worker_3', 5432);
+-- select rebalance_table_shards();
+
 -- Add extensions
 \connect :dbName
 create extension if not exists citus cascade schema :dbSchema;
 -- create schema if not exists partman authorization :ownerUsername;
--- create extension pg_partman with schema partman;
+-- create extension if not exists pg_partman with schema partman;
 __SQL__
 
 mv "${PGHBA}.bak" "${PGHBA}"
