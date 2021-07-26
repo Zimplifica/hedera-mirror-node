@@ -341,6 +341,39 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib.version}</version>
+                <configuration>
+                    <container>
+                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                        <jvmFlags>
+                            <jvmFlag>-XX:MaxRAMPercentage=70</jvmFlag>
+                        </jvmFlags>
+                    </container>
+                    <extraDirectories>
+                        <paths>
+                            <path>${docker.resources}</path>
+                        </paths>
+                    </extraDirectories>
+                    <to>
+                        <image>${docker.push.repository}:${project.artifactId}-${docker.tag.version}</image>
+                    </to>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>dockerBuild</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>dockerPush</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
