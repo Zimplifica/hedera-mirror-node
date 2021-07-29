@@ -25,8 +25,8 @@ select create_distributed_table('account_balance_file', 'node_account_id', coloc
 -- address_book_service_endpoint
 -- select create_distributed_table('address_book_service_endpoint', 'node_id', colocate_with => 'entity');
 
--- contract_result
-select create_distributed_table('contract_result', 'entity_id', colocate_with => 'entity');
+-- contract_result, leave as local table until contract_result is updated with entity_id etc
+-- select create_distributed_table('contract_result', 'entity_id', colocate_with => 'entity');
 
 -- crypto_transfer
 select create_distributed_table('crypto_transfer', 'entity_id', colocate_with => 'entity');
@@ -40,8 +40,8 @@ select create_distributed_table('event_file', 'node_account_id', colocate_with =
 -- file_data
 select create_distributed_table('file_data', 'entity_id', colocate_with => 'entity');
 
--- live_hash
-select create_distributed_table('live_hash', 'entity_id', colocate_with => 'entity');
+-- live_hash, leave as local table until live_hash is updated with entity_id etc
+-- select create_distributed_table('live_hash', 'entity_id', colocate_with => 'entity');
 
 -- nft
 select create_distributed_table('nft', 'token_id', colocate_with => 'entity');

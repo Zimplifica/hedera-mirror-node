@@ -20,24 +20,11 @@ package com.hedera.mirror.importer.converter;
  * ‍
  */
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
-import javax.inject.Named;
+import org.junit.jupiter.api.BeforeAll;
 
-import com.hedera.mirror.importer.domain.EntityId;
-
-@Named
-public class EntityIdSerializer extends JsonSerializer<EntityId> {
-    public static final EntityIdSerializer INSTANCE = new EntityIdSerializer();
-
-    @Override
-    public void serialize(EntityId value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (EntityId.isEmpty(value)) {
-            gen.writeNumber(EntityId.EMPTY.getId());
-        } else {
-            gen.writeNumber(value.getId());
-        }
+class TopicIdConverterTest extends AbstractEntityConverterTest {
+    @BeforeAll
+    static void beforeAll() {
+        converter = new TopicIdConverter();
     }
 }

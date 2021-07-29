@@ -57,6 +57,16 @@ create table entity_1 partition of entity
     for values from (100000) to (200000);
 create table entity_2 partition of entity
     for values from (200000) to (300000);
+create table entity_3 partition of entity
+    for values from (300000) to (3000000000);
+
+-- nft_transfer
+create table nft_transfer_2019 partition of nft_transfer
+    for values from (0) to (1577836799000000000);
+create table nft_transfer_2020 partition of nft_transfer
+    for values from (1577836799000000000) to (1609459199000000000);
+create table nft_transfer_2021 partition of nft_transfer
+    for values from (1609459199000000000) to (1640995199000000000);
 
 -- record_file
 create table rec_file_2019 partition of record_file
@@ -80,6 +90,14 @@ create table topic_msg_2019 partition of topic_message
 create table topic_msg_2020 partition of topic_message
     for values from (1577836799000000000) to (1609459199000000000);
 create table topic_msg_2021 partition of topic_message
+    for values from (1609459199000000000) to (1640995199000000000);
+
+-- token_transfer
+create table token_transfer_2019 partition of token_transfer
+    for values from (0) to (1577836799000000000);
+create table token_transfer_2020 partition of token_transfer
+    for values from (1577836799000000000) to (1609459199000000000);
+create table token_transfer_2021 partition of token_transfer
     for values from (1609459199000000000) to (1640995199000000000);
 
 -- transaction

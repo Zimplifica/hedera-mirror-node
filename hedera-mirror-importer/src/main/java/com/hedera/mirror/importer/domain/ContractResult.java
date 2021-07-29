@@ -45,6 +45,12 @@ public class ContractResult implements Persistable<Long> {
 
     private Long gasUsed;
 
+//    @Convert(converter = AccountIdConverter.class)
+//    private EntityId accountId;
+//
+//    @Convert(converter = ContractIdConverter.class)
+//    private EntityId contractId;
+
     @JsonIgnore
     @Override
     public Long getId() {

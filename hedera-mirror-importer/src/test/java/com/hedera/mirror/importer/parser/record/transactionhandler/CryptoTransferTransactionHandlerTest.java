@@ -39,6 +39,6 @@ class CryptoTransferTransactionHandlerTest extends AbstractTransactionHandlerTes
 
     @Override
     protected EntityTypeEnum getExpectedEntityIdType() {
-        return null;
+        return EntityTypeEnum.UNKNOWN;
     }
 }

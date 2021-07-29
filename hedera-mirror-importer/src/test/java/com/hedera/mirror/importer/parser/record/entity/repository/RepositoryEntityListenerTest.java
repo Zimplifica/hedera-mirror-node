@@ -118,6 +118,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         AssessedCustomFee assessedCustomFee1 = new AssessedCustomFee();
         assessedCustomFee1.setAmount(10L);
         assessedCustomFee1.setId(new AssessedCustomFee.Id(ENTITY_ID, 1010L));
+        assessedCustomFee1.setTokenId(TOKEN_ID);
 
         AssessedCustomFee assessedCustomFee2 = new AssessedCustomFee();
         assessedCustomFee2.setAmount(11L);
@@ -466,6 +467,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         topicMessage.setRunningHashVersion(2);
         topicMessage.setSequenceNumber(1);
         topicMessage.setTopicNum(1);
+        topicMessage.setEntityId(EntityId.of("0.0.1", EntityTypeEnum.TOKEN));
         repositoryEntityListener.onTopicMessage(topicMessage);
         assertThat(topicMessageRepository.findAll()).containsExactly(topicMessage);
     }
@@ -479,6 +481,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         transaction.setResult(1);
         transaction.setType(1);
         transaction.setValidStartNs(1L);
+        transaction.setEntityId(EntityId.of("0.0.1", EntityTypeEnum.UNKNOWN));
         repositoryEntityListener.onTransaction(transaction);
         assertThat(transactionRepository.findAll()).containsExactly(transaction);
     }

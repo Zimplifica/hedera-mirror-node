@@ -82,8 +82,8 @@ create table if not exists contract_result
     consensus_timestamp bigint not null,
     function_parameters bytea  null,
     gas_supplied        bigint null,
-    gas_used            bigint null,
-    entity_id           bigint null
+    gas_used            bigint null
+--     entity_id           bigint null
 );
 comment on table contract_result is 'Crypto contract execution results';
 
@@ -165,11 +165,11 @@ comment on table file_data is 'File data entity entries';
 create table if not exists live_hash
 (
     consensus_timestamp bigint not null,
-    livehash            bytea,
-    entity_id           bigint null
+    livehash            bytea
+--     entity_id           bigint null
 );
 
--- nft
+-- nft, should we partition by created_timestamp
 create table if not exists nft
 (
     account_id         bigint,
@@ -179,7 +179,7 @@ create table if not exists nft
     metadata           bytea,
     serial_number      bigint not null,
     token_id           bigint not null
-) partition by range (created_timestamp);
+);
 comment on table nft is 'Non-Fungible Tokens (NFTs) minted on network';
 
 -- nft_transfer
@@ -272,7 +272,7 @@ create table if not exists t_transaction_types
 );
 comment on table t_transaction_types is 'Transaction types';
 
--- token
+-- token, should we partition by created_timestamp
 create table if not exists token
 (
     token_id                     bigint,

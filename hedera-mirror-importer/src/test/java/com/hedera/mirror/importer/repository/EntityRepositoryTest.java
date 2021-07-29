@@ -94,7 +94,7 @@ class EntityRepositoryTest extends AbstractRepositoryTest {
     @Test
     void insertEntityId() {
         // given
-        EntityId entityId = EntityId.of(10L, 20L, 30L, EntityTypeEnum.ACCOUNT);
+        EntityId entityId = EntityId.of(1L, 20L, 30L, EntityTypeEnum.ACCOUNT);
         entityRepository.insertEntityId(entityId);
         assertThat(entityRepository.findById(entityId.getId())).get()
                 .isEqualTo(getEntityWithDefaultMemo(entityId));

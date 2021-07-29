@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import com.hedera.mirror.importer.IntegrationTest;
+import com.hedera.mirror.importer.MirrorProperties;
 import com.hedera.mirror.importer.domain.AccountBalance;
 import com.hedera.mirror.importer.domain.AccountBalanceFile;
 import com.hedera.mirror.importer.domain.EntityId;
@@ -64,7 +65,11 @@ class AccountBalanceFileParserTest extends IntegrationTest {
     @BeforeEach
     void setup() {
         parserProperties.setEnabled(true);
+        mirrorProperties.setStartDate(Instant.parse("1970-01-02T00:00:00Z"));
     }
+
+    @Resource
+    private MirrorProperties mirrorProperties;
 
     @Test
     void disabled() {
@@ -100,7 +105,8 @@ class AccountBalanceFileParserTest extends IntegrationTest {
 
     @Test
     void beforeStartDate() {
-        AccountBalanceFile accountBalanceFile = accountBalanceFile(-1L);
+        mirrorProperties.setStartDate(Instant.parse("1970-01-02T00:00:00Z"));
+        AccountBalanceFile accountBalanceFile = accountBalanceFile(0L);
         accountBalanceFileParser.parse(accountBalanceFile);
 
         assertThat(accountBalanceFileRepository.findAll())

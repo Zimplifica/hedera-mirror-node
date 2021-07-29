@@ -1054,6 +1054,7 @@ class SqlEntityListenerTest extends IntegrationTest {
         topicMessage.setChunkNum(1);
         topicMessage.setChunkTotal(2);
         topicMessage.setConsensusTimestamp(1L);
+        topicMessage.setEntityId(EntityId.of("0.0.1", EntityTypeEnum.TOPIC));
         topicMessage.setMessage("test message".getBytes());
         topicMessage.setPayerAccountId(EntityId.of("0.1.1000", EntityTypeEnum.ACCOUNT));
         topicMessage.setRealmNum(0);

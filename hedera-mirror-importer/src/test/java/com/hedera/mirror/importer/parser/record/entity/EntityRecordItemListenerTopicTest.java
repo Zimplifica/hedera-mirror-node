@@ -53,7 +53,7 @@ import org.springframework.cache.CacheManager;
 import com.hedera.mirror.importer.TestUtils;
 import com.hedera.mirror.importer.config.CacheConfiguration;
 import com.hedera.mirror.importer.converter.KeyConverter;
-import com.hedera.mirror.importer.converter.TopicIdConverter;
+import com.hedera.mirror.importer.converter.TopicIDProtoConverter;
 import com.hedera.mirror.importer.domain.Entity;
 import com.hedera.mirror.importer.domain.EntityId;
 import com.hedera.mirror.importer.domain.EntityTypeEnum;
@@ -79,7 +79,7 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
             "0.0.1, -9223372036854775808, -2147483648, '', '', memo, 1000002, , ,",
             "0.0.55, 10, 20, admin-key, submit-key, memo, 1000003, 1, 30"
     })
-    void createTopicTest(@ConvertWith(TopicIdConverter.class) TopicID topicId, long expirationTimeSeconds,
+    void createTopicTest(@ConvertWith(TopicIDProtoConverter.class) TopicID topicId, long expirationTimeSeconds,
                          int expirationTimeNanos, @ConvertWith(KeyConverter.class) Key adminKey,
                          @ConvertWith(KeyConverter.class) Key submitKey, String memo, long consensusTimestamp,
                          Long autoRenewAccountNum, Long autoRenewPeriod) throws Exception {
@@ -182,7 +182,7 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
             "0.0.1301, 10, 20, admin-key, submit-key, memo, 11, 21, '', '', '', 4000001, 1, 30",
             "0.0.1302, 0, 0, '', '', '', 11, 21, updated-admin-key, updated-submit-key, updated-memo, 4000002, ,"
     })
-    void updateTopicTest(@ConvertWith(TopicIdConverter.class) TopicID topicId, long expirationTimeSeconds,
+    void updateTopicTest(@ConvertWith(TopicIDProtoConverter.class) TopicID topicId, long expirationTimeSeconds,
                          int expirationTimeNanos, @ConvertWith(KeyConverter.class) Key adminKey,
                          @ConvertWith(KeyConverter.class) Key submitKey, String memo,
                          long updatedExpirationTimeSeconds, int updatedExpirationTimeNanos,
@@ -272,7 +272,8 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
                     "updated-memo, 1, 30, 11, 31",
             "0.0.1503, , , , , '', 5000003, 11, 21, admin-key, submit-key, memo, , , 1, 30"
     })
-    void updateTopicTestPartialUpdates(@ConvertWith(TopicIdConverter.class) TopicID topicId, Long expirationTimeSeconds,
+    void updateTopicTestPartialUpdates(@ConvertWith(TopicIDProtoConverter.class) TopicID topicId,
+                                       Long expirationTimeSeconds,
                                        Integer expirationTimeNanos, @ConvertWith(KeyConverter.class) Key adminKey,
                                        @ConvertWith(KeyConverter.class) Key submitKey, String memo,
                                        long consensusTimestamp, Long updatedExpirationTimeSeconds,
@@ -403,7 +404,7 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
             "0.0.9001, test-message2, 9000001, runninghash2, 9223372036854775807, 2, 2, 4, 7, 89999999",
             "0.0.9001, test-message3, 9000001, runninghash3, 9223372036854775807, 2, 4, 4, 7, 89999999",
     })
-    void submitMessageTest(@ConvertWith(TopicIdConverter.class) TopicID topicId, String message,
+    void submitMessageTest(@ConvertWith(TopicIDProtoConverter.class) TopicID topicId, String message,
                            long consensusTimestamp, String runningHash, long sequenceNumber, int runningHashVersion,
                            Integer chunkNum, Integer chunkTotal, Long payerAccountIdNum, Long validStartNs) throws Exception {
         var responseCode = ResponseCodeEnum.SUCCESS;
@@ -466,7 +467,8 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
     void submitMessageTestFiltered() throws Exception {
         // given
         var responseCode = ResponseCodeEnum.SUCCESS;
-        var topicId = (TopicID) new TopicIdConverter().convert("0.0.999", null); // excluded in application-default.yml
+        var topicId = (TopicID) new TopicIDProtoConverter()
+                .convert("0.0.999", null); // excluded in application-default.yml
         var consensusTimestamp = 10_000_000L;
         var message = "message";
         var sequenceNumber = 10_000L;
@@ -510,7 +512,7 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
         assertThat(topicMessageRepository.findById(id))
                 .get()
                 .extracting(TopicMessage::getValidStartTimestamp, TopicMessage::getPayerAccountId)
-                .containsExactly(Long.MAX_VALUE, null);
+                .containsExactly(Long.MAX_VALUE, EntityId.EMPTY);
     }
 
     @Test
@@ -674,6 +676,7 @@ class EntityRecordItemListenerTopicTest extends AbstractEntityRecordItemListener
         topicMessage.setChunkNum(chunkNum);
         topicMessage.setChunkTotal(chunkTotal);
         topicMessage.setValidStartTimestamp(validStartNs);
+        topicMessage.setEntityId(EntityId.of(topicId));
 
         EntityId payerAccountEntityId = payerAccountIdNum == null ? null : EntityId
                 .of(AccountID.newBuilder().setAccountNum(payerAccountIdNum).build());

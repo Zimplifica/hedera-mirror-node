@@ -39,19 +39,21 @@ class EntityIdSerializerTest {
     @Test
     void testNull() throws Exception {
         // when
+        var entity = EntityId.EMPTY;
         new EntityIdSerializer().serialize(null, jsonGenerator, null);
 
         // then
-        verify(jsonGenerator).writeNull();
+        verify(jsonGenerator).writeNumber(entity.getId());
     }
 
     @Test
     void testEmpty() throws Exception {
         // when
+        var entity = EntityId.EMPTY;
         new EntityIdSerializer().serialize(EntityId.EMPTY, jsonGenerator, null);
 
         // then
-        verify(jsonGenerator).writeNull();
+        verify(jsonGenerator).writeNumber(entity.getId());
     }
 
     @Test

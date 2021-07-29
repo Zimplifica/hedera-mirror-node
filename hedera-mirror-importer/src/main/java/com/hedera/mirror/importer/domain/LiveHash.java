@@ -39,6 +39,9 @@ public class LiveHash implements Persistable<Long> {
 
     private byte[] livehash;
 
+    //    @Convert(converter = UnknownIdConverter.class)
+//    private EntityId entityId;
+
     @JsonIgnore
     @Override
     public Long getId() {

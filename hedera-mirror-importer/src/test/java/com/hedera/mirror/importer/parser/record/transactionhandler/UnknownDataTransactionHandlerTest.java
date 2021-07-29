@@ -46,6 +46,6 @@ class UnknownDataTransactionHandlerTest extends AbstractTransactionHandlerTest {
 
     @Override
     protected EntityTypeEnum getExpectedEntityIdType() {
-        return null;
+        return EntityTypeEnum.UNKNOWN;
     }
 }
