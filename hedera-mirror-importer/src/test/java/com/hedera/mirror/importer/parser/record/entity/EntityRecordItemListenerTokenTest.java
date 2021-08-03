@@ -474,7 +474,8 @@ class EntityRecordItemListenerTokenTest extends AbstractEntityRecordItemListener
         assertNftTransferInRepository(mintTimestamp, SERIAL_NUMBER_2, TOKEN_ID, PAYER, null);
         assertNftTransferInRepository(burnTimestamp, SERIAL_NUMBER_1, TOKEN_ID, null, PAYER);
         assertTokenInRepository(TOKEN_ID, true, CREATE_TIMESTAMP, burnTimestamp, SYMBOL, 0);
-        assertNftInRepository(TOKEN_ID, 1L, true, mintTimestamp, burnTimestamp, METADATA.getBytes(), null, true);
+        assertNftInRepository(TOKEN_ID, 1L, true, mintTimestamp, burnTimestamp, METADATA
+                .getBytes(), null, true);
         assertNftInRepository(TOKEN_ID, 2L, true, mintTimestamp, mintTimestamp, METADATA.getBytes(), EntityId
                 .of(PAYER), false);
     }
@@ -1453,6 +1454,7 @@ class EntityRecordItemListenerTokenTest extends AbstractEntityRecordItemListener
         assessedCustomFee1.setAmount(12505L);
         assessedCustomFee1.setEffectivePayerAccountIds(Collections.emptyList());
         assessedCustomFee1.setId(new AssessedCustomFee.Id(FEE_COLLECTOR_ACCOUNT_ID_1, TRANSFER_TIMESTAMP));
+        assessedCustomFee1.setTokenId(EntityId.EMPTY);
 
         // paid in FEE_DOMAIN_TOKEN_ID
         AssessedCustomFee assessedCustomFee2 = new AssessedCustomFee();

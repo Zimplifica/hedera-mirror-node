@@ -461,7 +461,7 @@ class EntityRecordItemListenerContractTest extends AbstractEntityRecordItemListe
                 () -> assertEquals(0, liveHashRepository.count()),
                 () -> assertEquals(0, fileDataRepository.count()),
                 () -> assertTransactionAndRecord(transactionBody, record),
-                () -> assertNull(dbTransaction.getEntityId())
+                () -> assertEquals(EntityId.EMPTY, dbTransaction.getEntityId())
         );
     }
 
@@ -477,7 +477,7 @@ class EntityRecordItemListenerContractTest extends AbstractEntityRecordItemListe
         var dbTransaction = getDbTransaction(record.getConsensusTimestamp());
         assertAll(
                 () -> assertTransactionAndRecord(transactionBody, record),
-                () -> assertNull(dbTransaction.getEntityId()),
+                () -> assertEquals(EntityId.EMPTY, dbTransaction.getEntityId()),
                 () -> assertEquals(transactionBody.getContractCreateInstance().getInitialBalance(),
                         dbTransaction.getInitialBalance()));
     }

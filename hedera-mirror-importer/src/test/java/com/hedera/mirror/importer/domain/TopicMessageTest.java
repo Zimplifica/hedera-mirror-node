@@ -35,7 +35,7 @@ class TopicMessageTest {
         topicMessage.setChunkNum(1);
         topicMessage.setChunkTotal(2);
         topicMessage.setConsensusTimestamp(1594401417000000000L);
-        topicMessage.setEntityId(EntityId.of("0.0.0", EntityTypeEnum.ACCOUNT));
+        topicMessage.setEntityId(EntityId.of("0.0.1001", EntityTypeEnum.ACCOUNT));
         topicMessage.setMessage(new byte[] {1, 2, 3});
         topicMessage.setPayerAccountId(EntityId.of("0.1.1000", EntityTypeEnum.ACCOUNT));
         topicMessage.setRealmNum(0);
@@ -52,7 +52,7 @@ class TopicMessageTest {
                 "\"chunk_num\":1," +
                 "\"chunk_total\":2," +
                 "\"consensus_timestamp\":1594401417000000000," +
-                "\"entity_id\":0," +
+                "\"entity_id\":1001," +
                 "\"message\":\"AQID\"," +
                 "\"payer_account_id\":4294968296," +
                 "\"realm_num\":0," +

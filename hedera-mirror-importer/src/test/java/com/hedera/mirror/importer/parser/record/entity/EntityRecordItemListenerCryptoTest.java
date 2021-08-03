@@ -123,7 +123,7 @@ class EntityRecordItemListenerCryptoTest extends AbstractEntityRecordItemListene
                 , () -> assertEquals(0, liveHashRepository.count())
                 , () -> assertEquals(0, fileDataRepository.count())
                 , () -> assertTransactionAndRecord(transactionBody, record)
-                , () -> assertNull(dbTransaction.getEntityId())
+                , () -> assertEquals(EntityId.EMPTY, dbTransaction.getEntityId())
                 , () -> assertEquals(cryptoCreateTransactionBody.getInitialBalance(), dbTransaction.getInitialBalance())
         );
     }

@@ -24,15 +24,18 @@ import static com.hedera.mirror.importer.domain.StreamFilename.FileType.DATA;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.primitives.Longs;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import com.hedera.mirror.importer.IntegrationTest;
 import com.hedera.mirror.importer.MirrorProperties;
+import com.hedera.mirror.importer.config.MirrorDateRangePropertiesProcessor;
 import com.hedera.mirror.importer.domain.AccountBalance;
 import com.hedera.mirror.importer.domain.AccountBalanceFile;
 import com.hedera.mirror.importer.domain.EntityId;
@@ -40,9 +43,13 @@ import com.hedera.mirror.importer.domain.EntityTypeEnum;
 import com.hedera.mirror.importer.domain.StreamFilename;
 import com.hedera.mirror.importer.domain.StreamType;
 import com.hedera.mirror.importer.domain.TokenBalance;
+import com.hedera.mirror.importer.downloader.CommonDownloaderProperties;
+import com.hedera.mirror.importer.downloader.balance.BalanceDownloaderProperties;
 import com.hedera.mirror.importer.parser.StreamFileParser;
 import com.hedera.mirror.importer.repository.AccountBalanceFileRepository;
 import com.hedera.mirror.importer.repository.AccountBalanceRepository;
+import com.hedera.mirror.importer.repository.EventFileRepository;
+import com.hedera.mirror.importer.repository.RecordFileRepository;
 import com.hedera.mirror.importer.repository.TokenBalanceRepository;
 
 class AccountBalanceFileParserTest extends IntegrationTest {
@@ -60,16 +67,21 @@ class AccountBalanceFileParserTest extends IntegrationTest {
     private TokenBalanceRepository tokenBalanceRepository;
 
     @Resource
+    private DataSource dataSource;
+
+    @Resource
     private BalanceParserProperties parserProperties;
+
+    @Resource
+    private EventFileRepository eventFileRepository;
+
+    @Resource
+    private RecordFileRepository recordFileRepository;
 
     @BeforeEach
     void setup() {
         parserProperties.setEnabled(true);
-        mirrorProperties.setStartDate(Instant.parse("1970-01-02T00:00:00Z"));
     }
-
-    @Resource
-    private MirrorProperties mirrorProperties;
 
     @Test
     void disabled() {
@@ -105,8 +117,25 @@ class AccountBalanceFileParserTest extends IntegrationTest {
 
     @Test
     void beforeStartDate() {
+        MirrorProperties mirrorProperties = new MirrorProperties();
         mirrorProperties.setStartDate(Instant.parse("1970-01-02T00:00:00Z"));
-        AccountBalanceFile accountBalanceFile = accountBalanceFile(0L);
+        mirrorProperties.setNetwork(MirrorProperties.HederaNetwork.TESTNET);
+        CommonDownloaderProperties commonDownloaderProperties = new CommonDownloaderProperties(mirrorProperties);
+        var balanceDownloaderProperties = new BalanceDownloaderProperties(mirrorProperties, commonDownloaderProperties);
+
+        AccountBalanceFileParser accountBalanceFileParser = new AccountBalanceFileParser(
+                new SimpleMeterRegistry(),
+                parserProperties,
+                accountBalanceFileRepository,
+                dataSource,
+                new MirrorDateRangePropertiesProcessor(
+                        mirrorProperties,
+                        List.of(balanceDownloaderProperties),
+                        accountBalanceFileRepository,
+                        eventFileRepository,
+                        recordFileRepository));
+
+        AccountBalanceFile accountBalanceFile = accountBalanceFile(100L);
         accountBalanceFileParser.parse(accountBalanceFile);
 
         assertThat(accountBalanceFileRepository.findAll())
@@ -160,7 +189,7 @@ class AccountBalanceFileParserTest extends IntegrationTest {
                 .count(2L)
                 .fileHash("fileHash" + timestamp)
                 .items(Flux.just(accountBalance(timestamp, 1), accountBalance(timestamp, 2)))
-                .loadEnd(null)
+                .loadEnd(timestamp + 10)
                 .loadStart(timestamp)
                 .name(filename)
                 .nodeAccountId(EntityId.of("0.0.3", EntityTypeEnum.ACCOUNT))

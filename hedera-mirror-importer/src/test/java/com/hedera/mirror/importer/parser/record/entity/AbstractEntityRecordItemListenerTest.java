@@ -359,7 +359,7 @@ public abstract class AbstractEntityRecordItemListenerTest extends IntegrationTe
     protected Entity createEntity(EntityId entityId, Key adminKey, EntityId autoRenewAccountId, Long autoRenewPeriod,
                                   Boolean deleted, Long expiryTimeNs, String memo, Key submitKey,
                                   Long createdTimestamp, Long modifiedTimestamp) {
-        if (autoRenewAccountId != null) {
+        if (!EntityId.isEmpty(autoRenewAccountId)) {
             entityRepository.save(getEntityWithDefaultMemo(autoRenewAccountId));
         }
 

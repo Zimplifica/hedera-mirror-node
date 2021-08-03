@@ -50,7 +50,7 @@ import com.hedera.mirror.importer.util.EntityIdEndec;
 public class EntityId implements Serializable, Comparable<EntityId> {
     private static final Comparator<EntityId> COMPARATOR = Comparator
             .nullsFirst(Comparator.comparingLong(EntityId::getId));
-    public static final EntityId EMPTY = new EntityId(0L, 0L, 0L, EntityTypeEnum.ACCOUNT.getId());
+    public static final EntityId EMPTY = new EntityId(0L, 0L, 0L, EntityTypeEnum.UNKNOWN.getId());
 
     private static final Splitter SPLITTER = Splitter.on('.').omitEmptyStrings().trimResults();
     private static final long serialVersionUID = 1427649605832330197L;

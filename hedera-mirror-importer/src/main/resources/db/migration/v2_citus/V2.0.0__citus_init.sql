@@ -363,7 +363,7 @@ create table if not exists transaction
     valid_start_ns         bigint   not null,
     valid_duration_seconds bigint,
     node_account_id        bigint,
-    entity_id              bigint,
+    entity_id              bigint   not null,
     initial_balance        bigint            default 0,
     max_fee                bigint,
     charged_tx_fee         bigint,

@@ -74,7 +74,7 @@ select create_distributed_table('token', 'token_id', colocate_with => 'entity');
 select create_distributed_table('token_account', 'token_id', colocate_with => 'entity');
 
 -- token_balance
-select create_distributed_table('token_balance', 'token_id', colocate_with => 'entity');
+select create_distributed_table('token_balance', 'account_id', colocate_with => 'entity');
 
 -- token_transfer
 select create_distributed_table('token_transfer', 'token_id', colocate_with => 'entity');
