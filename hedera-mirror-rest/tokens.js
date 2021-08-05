@@ -419,18 +419,19 @@ const extractSqlFromTokenInfoRequest = (tokenId, filters) => {
 
   const aggregateCustomFeeQuery = `
     select jsonb_agg(jsonb_build_object(
-        'amount', ${CustomFee.AMOUNT},
-        'amount_denominator', ${CustomFee.AMOUNT_DENOMINATOR},
-        'collector_account_id', ${CustomFee.COLLECTOR_ACCOUNT_ID}::text,
-        'created_timestamp', ${CustomFee.CREATED_TIMESTAMP}::text,
-        'denominating_token_id', ${CustomFee.DENOMINATING_TOKEN_ID}::text,
-        'maximum_amount', ${CustomFee.MAXIMUM_AMOUNT},
-        'minimum_amount', ${CustomFee.MINIMUM_AMOUNT},
-        'net_of_transfers', ${CustomFee.NET_OF_TRANSFERS},
-        'royalty_denominator', ${CustomFee.ROYALTY_DENOMINATOR},
-        'royalty_numerator', ${CustomFee.ROYALTY_NUMERATOR},
-        'token_id', ${CustomFee.TOKEN_ID}::text
-    ) order by ${CustomFee.COLLECTOR_ACCOUNT_ID}, ${CustomFee.DENOMINATING_TOKEN_ID}, ${CustomFee.AMOUNT}, ${
+                       'amount', ${CustomFee.AMOUNT},
+                       'amount_denominator', ${CustomFee.AMOUNT_DENOMINATOR},
+                       'collector_account_id', ${CustomFee.COLLECTOR_ACCOUNT_ID}::text,
+                       'created_timestamp', ${CustomFee.CREATED_TIMESTAMP}::text,
+                       'denominating_token_id', ${CustomFee.DENOMINATING_TOKEN_ID}::text,
+                       'maximum_amount', ${CustomFee.MAXIMUM_AMOUNT},
+                       'minimum_amount', ${CustomFee.MINIMUM_AMOUNT},
+                       'net_of_transfers', ${CustomFee.NET_OF_TRANSFERS},
+                       'royalty_denominator', ${CustomFee.ROYALTY_DENOMINATOR},
+                       'royalty_numerator', ${CustomFee.ROYALTY_NUMERATOR},
+                       'token_id', ${CustomFee.TOKEN_ID}::text
+                       )
+                     order by ${CustomFee.COLLECTOR_ACCOUNT_ID}, ${CustomFee.DENOMINATING_TOKEN_ID}, ${CustomFee.AMOUNT}, ${
     CustomFee.ROYALTY_NUMERATOR
   })
     from ${CustomFee.tableName} ${CustomFee.tableAlias}
@@ -844,6 +845,35 @@ const extractSqlFromNftTransferHistoryRequest = (tokenId, serialNumber, transfer
 
   const transferWhereQuery = `where ${transferConditions.join('\nand ')}`;
 
+  const serialTransferCte = getCte(
+    'serial_transfers',
+    nftTransferHistoryCteSelectFields.join(',\n'),
+    `from ${NftTransfer.tableName} ${NftTransfer.tableAlias}`,
+    '',
+    transferWhereQuery
+  );
+
+  const tokenTransactionCte = getCte(
+    'token_transactions',
+    nftTransferHistorySelectFields.join(',\n'),
+    `from serial_transfers ${NftTransfer.tableAlias}`,
+    `${joinTransactionClause} and ${NftTransfer.TOKEN_ID_FULL_NAME} = ${Transaction.ENTITY_ID_FULL_NAME}`,
+    ''
+  );
+
+  const tokenTransferCte = getCte(
+    'token_transfers',
+    nftTransferHistorySelectFields.join(',\n'),
+    `from serial_transfers ${NftTransfer.tableAlias}`,
+    `${joinTransactionClause} and ${Transaction.ENTITY_ID_FULL_NAME} = 0`,
+    ''
+  );
+
+  const cteQuery = `with ${serialTransferCte}, ${tokenTransactionCte}, ${tokenTransferCte}
+  select * from token_transactions
+  union
+  select * from token_transfers`;
+
   const unionQuery = `union\n${deleteQuery}`;
 
   const deleteWhereCondition = `where ${deleteConditions.join('\nand ')}`;
@@ -851,15 +881,7 @@ const extractSqlFromNftTransferHistoryRequest = (tokenId, serialNumber, transfer
   const orderQuery = `order by ${NftTransfer.CONSENSUS_TIMESTAMP} ${order}`;
   const limitQuery = `limit $${params.push(limit)}`;
 
-  const finalQuery = [
-    transferQuery,
-    joinTransactionClause,
-    transferWhereQuery,
-    unionQuery,
-    deleteWhereCondition,
-    orderQuery,
-    limitQuery,
-  ]
+  const finalQuery = [cteQuery, unionQuery, deleteWhereCondition, orderQuery, limitQuery]
     .filter((q) => q !== '')
     .join('\n');
 
@@ -899,6 +921,22 @@ const nftDeleteHistorySelectQuery = [
   nftDeleteHistorySelectFields.join(',\n'),
   `from ${Transaction.tableName} ${Transaction.tableAlias}`,
 ].join('\n');
+
+const nftTransferHistoryCteSelectFields = [
+  NftTransfer.CONSENSUS_TIMESTAMP_FULL_NAME,
+  NftTransfer.RECEIVER_ACCOUNT_ID_FULL_NAME,
+  NftTransfer.SENDER_ACCOUNT_ID_FULL_NAME,
+  NftTransfer.TOKEN_ID_FULL_NAME,
+];
+
+const getCte = (cteName, select, from, join, where) => {
+  return `${cteName} as (
+    select ${select}
+    ${from}
+    ${join}
+    ${where}
+  )`;
+};
 
 /**
  * Handler function for /api/v1/tokens/{tokenId}/nfts/{serialNumber}/transactions API.
