@@ -59,6 +59,8 @@ create table entity_2 partition of entity
     for values from (200000) to (300000);
 create table entity_3 partition of entity
     for values from (300000) to (3000000000);
+create table entity_4 partition of entity
+    for values from (3000000000) to (999999999999);
 
 -- nft_transfer
 create table nft_transfer_2019 partition of nft_transfer

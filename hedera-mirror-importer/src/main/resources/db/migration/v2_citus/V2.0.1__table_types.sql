@@ -83,7 +83,10 @@ select create_distributed_table('token_transfer', 'token_id', colocate_with => '
 select create_distributed_table('topic_message', 'entity_id', colocate_with => 'entity');
 
 -- transaction
-select create_distributed_table('transaction', 'entity_id', colocate_with => 'entity');
+-- unclear the right distribution column to use for transactions.
+-- entity_id and payer_account_id were considered but full outer joins with non distribution columns aren't supported with citus
+-- for now leave as growing list on coordinator node with old partitions being removed for hot path
+--select create_distributed_table('transaction', 'payer_account_id', colocate_with => 'entity');
 
 -- transaction_signature
 select create_distributed_table('transaction_signature', 'entity_id', colocate_with => 'entity');

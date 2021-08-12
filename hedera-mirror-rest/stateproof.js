@@ -42,11 +42,11 @@ const {FileDownloadError} = require('./errors/fileDownloadError');
 let getSuccessfulTransactionConsensusNs = async (transactionId, scheduled) => {
   const sqlParams = [transactionId.getEntityId().getEncodedId(), transactionId.getValidStartNs()];
   const sqlQuery = `SELECT consensus_ns
-       FROM transaction
-       WHERE payer_account_id = $1
-         AND valid_start_ns = $2
-         AND scheduled = ${scheduled}
-         AND result = 22`; // only the successful transaction
+                    FROM transaction
+                    WHERE payer_account_id = $1
+                      AND valid_start_ns = $2
+                      AND scheduled = ${scheduled}
+                      AND result = 22`; // only the successful transaction
   if (logger.isTraceEnabled()) {
     logger.trace(`getSuccessfulTransactionConsensusNs: ${sqlQuery}, ${JSON.stringify(sqlParams)}`);
   }
@@ -71,10 +71,10 @@ let getSuccessfulTransactionConsensusNs = async (transactionId, scheduled) => {
  */
 let getRCDFileInfoByConsensusNs = async (consensusNs) => {
   const sqlQuery = `SELECT bytes, name, node_account_id, version
-       FROM record_file
-       WHERE consensus_end >= $1
-       ORDER BY consensus_end
-       LIMIT 1`;
+                    FROM record_file
+                    WHERE consensus_end >= $1
+                    ORDER BY consensus_end
+                    LIMIT 1`;
   if (logger.isTraceEnabled()) {
     logger.trace(`getRCDFileNameByConsensusNs: ${sqlQuery}, ${consensusNs}`);
   }
@@ -102,17 +102,16 @@ let getRCDFileInfoByConsensusNs = async (consensusNs) => {
 let getAddressBooksAndNodeAccountIdsByConsensusNs = async (consensusNs) => {
   // Get the chain of address books whose start_consensus_timestamp <= consensusNs, also aggregate the corresponding
   // memo and node account ids from table address_book_entry
-  let sqlQuery = `SELECT
-         file_data,
-         node_count,
-         string_agg(memo, ',') AS memos,
-         string_agg(cast(abe.node_account_id AS VARCHAR), ',') AS node_account_ids
-       FROM address_book ab
-       LEFT JOIN address_book_entry abe
-         ON ab.start_consensus_timestamp = abe.consensus_timestamp
-       WHERE start_consensus_timestamp <= $1
-         AND file_id = 102
-       GROUP BY start_consensus_timestamp`;
+  let sqlQuery = `SELECT file_data,
+                         node_count,
+                         string_agg(memo, ',')                                 AS memos,
+                         string_agg(cast(abe.node_account_id AS VARCHAR), ',') AS node_account_ids
+                  FROM address_book ab
+                         LEFT JOIN address_book_entry abe
+                                   ON ab.start_consensus_timestamp = abe.consensus_timestamp
+                  WHERE start_consensus_timestamp <= $1
+                    AND file_id = 102
+                  GROUP BY start_consensus_timestamp, node_count, file_data`;
   if (config.stateproof.addressBookHistory) {
     sqlQuery += `
       ORDER BY start_consensus_timestamp`;

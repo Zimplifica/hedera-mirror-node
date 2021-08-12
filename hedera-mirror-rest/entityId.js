@@ -43,11 +43,20 @@ class EntityId {
    * @returns {string} encoded id corresponding to this EntityId.
    */
   getEncodedId() {
-    return this.num === null ? null : ((this.shard << shardOffset) | (this.realm << numBits) | this.num).toString();
+    return this.isEmpty() ? '0' : ((this.shard << shardOffset) | (this.realm << numBits) | this.num).toString();
+  }
+
+  isEmpty() {
+    return (
+      (_.isNil(this.shard) || BigInt(this.shard) === 0n) &&
+      (_.isNil(this.realm) || BigInt(this.realm) === 0n) &&
+      (_.isNil(this.num) || BigInt(this.num) === 0n)
+    );
   }
 
   toString() {
-    return this.num === null ? null : `${this.shard}.${this.realm}.${this.num}`;
+    // fix this to return 0 or 'x.y.z', leaving as is to reduce code churn during POC
+    return this.isEmpty() ? null : `${this.shard}.${this.realm}.${this.num}`;
   }
 }
 

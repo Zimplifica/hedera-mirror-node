@@ -139,6 +139,7 @@ const flywayMigrate = () => {
     "placeholders.compressionAge": 9007199254740991,
     "placeholders.db-name": "${dbConfig.name}",
     "placeholders.db-user": "${dbAdminUser}",
+    "placeholders.mirror-schema": "public",
     "placeholders.topicRunningHashV2AddedTimestamp": 0,
     "target": "latest",
     "url": "jdbc:postgresql://${dbConfig.host}:${dbConfig.port}/${dbConfig.name}",

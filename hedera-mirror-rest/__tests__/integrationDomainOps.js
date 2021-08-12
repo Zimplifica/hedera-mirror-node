@@ -491,8 +491,8 @@ const addTopicMessage = async (message) => {
 
   await sqlConnection.query(
     `INSERT INTO topic_message (consensus_timestamp, realm_num, topic_num, message, running_hash, sequence_number,
-                                running_hash_version)
-     VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+                                running_hash_version, entity_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
     [
       message.timestamp,
       message.realm_num,
@@ -501,6 +501,7 @@ const addTopicMessage = async (message) => {
       message.running_hash,
       message.seq_num,
       message.running_hash_version,
+      message.topic_num, // change to entityId
     ]
   );
 };

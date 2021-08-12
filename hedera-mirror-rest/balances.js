@@ -87,12 +87,11 @@ const getBalances = async (req, res) => {
 
   // Use the inner query to find the latest snapshot timestamp from the balance history table
   const innerQuery = `
-      SELECT
-        ab.consensus_timestamp
-      FROM account_balance ab
-      WHERE ${tsQuery === '' ? '1=1' : tsQuery}
-      ORDER BY ab.consensus_timestamp DESC
-      LIMIT 1`;
+    SELECT ab.consensus_timestamp
+    FROM account_balance ab
+    WHERE ${tsQuery === '' ? '1=1' : tsQuery}
+    ORDER BY ab.consensus_timestamp DESC
+    LIMIT 1`;
 
   const whereClause = `
       WHERE ${[`ab.consensus_timestamp = (${innerQuery})`, accountQuery, pubKeyQuery, balanceQuery]
@@ -110,24 +109,23 @@ const getBalances = async (req, res) => {
 
   // token balances pairs are aggregated as an array of json objects {token_id, balance}
   const sqlQuery = `
-      SELECT
-        ab.consensus_timestamp,
-        ab.account_id,
-        ab.balance,
-        json_agg(
-          json_build_object(
-            'token_id', tb.token_id::text,
-            'balance', tb.balance
-          ) order by tb.token_id ${order}
-        ) FILTER (WHERE tb.token_id IS NOT NULL) AS token_balances
-      FROM account_balance ab
-      LEFT JOIN token_balance tb
-        ON ab.consensus_timestamp = tb.consensus_timestamp
-          AND ab.account_id = tb.account_id
-      ${joinEntityClause}
-      ${whereClause}
-      GROUP BY ab.consensus_timestamp, ab.account_id
-      ORDER BY ab.account_id ${order}
+    SELECT ab.consensus_timestamp,
+           ab.account_id,
+           ab.balance,
+           json_agg(
+           json_build_object(
+             'token_id', tb.token_id::text,
+             'balance', tb.balance
+             ) order by tb.token_id ${order}
+             ) FILTER (WHERE tb.token_id IS NOT NULL) AS token_balances
+    FROM account_balance ab
+           LEFT JOIN token_balance tb
+                     ON ab.consensus_timestamp = tb.consensus_timestamp
+                       AND ab.account_id = tb.account_id
+                         ${joinEntityClause}
+                           ${whereClause}
+    GROUP BY ab.consensus_timestamp, ab.account_id, ab.balance
+    ORDER BY ab.account_id ${order}
       ${query}`;
 
   const sqlParams = tsParams.concat(accountParams).concat(pubKeyParams).concat(balanceParams).concat(params);

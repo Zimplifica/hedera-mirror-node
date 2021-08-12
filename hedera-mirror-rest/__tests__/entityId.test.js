@@ -156,7 +156,7 @@ describe('EntityId fromString', () => {
 
 describe('EntityId toString', () => {
   test('0.0.0', () => {
-    expect(EntityId.of(0n, 0n, 0n).toString()).toEqual('0.0.0');
+    expect(EntityId.of(0n, 0n, 0n).toString()).toBeNull();
   });
 
   test('32767.65535.4294967295', () => {
@@ -190,7 +190,7 @@ describe('EntityId encoding', () => {
   });
 
   test('nullable', () => {
-    expect(EntityId.fromString(null, '', true).getEncodedId()).toBeNull();
+    expect(EntityId.fromString(null, '', true).getEncodedId()).toBe('0');
   });
 });
 
