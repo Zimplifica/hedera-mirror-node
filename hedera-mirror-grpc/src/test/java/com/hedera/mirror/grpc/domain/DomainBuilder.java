@@ -95,6 +95,10 @@ public class DomainBuilder {
                 .topicNum(0)
                 .runningHashVersion(2);
 
+        // workaround to set entityId. Test cases can be updated for explicitness later
+        TopicMessage tempTopicMessage = builder.build();
+        builder.entityId(tempTopicMessage.getEntityId());
+
         customizer.accept(builder);
         TopicMessage topicMessage = builder.build();
         return insert(topicMessage).thenReturn(topicMessage);

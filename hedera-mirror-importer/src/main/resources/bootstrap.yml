@@ -3,6 +3,6 @@ spring:
     kubernetes:
       enabled: false
   flyway:
-    baselineVersion: 0
-    locations: "classpath:db/migration/v1"
+    baselineVersion: 1.999.999
+    locations: "classpath:db/migration/v2_citus"
     target: latest

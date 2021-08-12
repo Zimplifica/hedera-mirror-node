@@ -1,7 +1,7 @@
 embedded:
   postgresql:
-    docker-image: timescale/timescaledb-ha:pg13.4-ts2.4.1-latest
+    docker-image: citusdata/citus:10.1
 spring:
   flyway:
     baselineVersion: 1.999.999
-    locations: "filesystem:../hedera-mirror-importer/src/main/resources/db/migration/v2"
+    locations: "filesystem:../hedera-mirror-importer/src/main/resources/db/migration/v2_citus"

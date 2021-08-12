@@ -84,6 +84,8 @@ public class TopicMessage implements Comparable<TopicMessage>, Persistable<Long>
 
     private int topicNum;
 
+    private long entityId;
+
     private Integer chunkNum;
 
     private Integer chunkTotal;

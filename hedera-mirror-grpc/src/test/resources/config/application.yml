@@ -17,6 +17,7 @@ hedera:
         name: ${embedded.postgresql.schema}
         username: ${embedded.postgresql.user}
         password: ${embedded.postgresql.password}
+        schema: public
       endTimeInterval: 100ms
       listener:
         enabled: false # Disabled except in tests that use it since it polls in background repeatedly every 50ms
@@ -46,6 +47,7 @@ spring:
       compressionAge: 9223372036854775807 # use long max to avoid compression during test
       db-name: ${hedera.mirror.grpc.db.name}
       db-user: ${hedera.mirror.grpc.db.username}
+      mirror-schema: ${hedera.mirror.grpc.db.schema}
       topicRunningHashV2AddedTimestamp: 0
   redis:
     host: ${embedded.redis.host}
