@@ -21,7 +21,7 @@ services:
       ROSETTA_PASSWORD: mirror_rosetta_pass
       SPRING_PROFILES_ACTIVE: v2
     volumes:
-      - ./db:/var/lib/postgresql/data
+      #      - ./db:/var/lib/postgresql/data
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
 
   manager:
@@ -47,7 +47,7 @@ services:
       - ./docker-entrypoint.sh:/docker-entrypoint.sh
 
   importer:
-    depends_on: [ worker ]
+    depends_on: [ redis ]
     image: nanahedera/hedera:hedera-mirror-importer-0.38.0-CITUS
     #    pull_policy: always
     restart: unless-stopped
@@ -71,8 +71,8 @@ services:
       - 6379:6379
 
   rest:
-    depends_on: [ importer ]
-    image: gcr.io/mirrornode/hedera-mirror-rest:main
+    depends_on: [ master ]
+    image: nanahedera/hedera:hedera-mirror-rest-0.38.0-CITUS
     #    pull_policy: always
     environment:
       HEDERA_MIRROR_REST_DB_HOST: master
