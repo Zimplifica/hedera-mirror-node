@@ -94,6 +94,7 @@ import com.hedera.mirror.importer.repository.TransactionSignatureRepository;
 class SqlEntityListenerTest extends IntegrationTest {
     private static final String KEY = "0a2212200aa8e21064c61eab86e2a9c164565b4e7a9a4146106e0a6cd03a8c395a110fff";
     private static final String KEY2 = "0a3312200aa8e21064c61eab86e2a9c164565b4e7a9a4146106e0a6cd03a8c395a110e92";
+    private static final EntityId TRANSACTION_PAYER = EntityId.of("0.0.1000", ACCOUNT);
 
     private final TransactionRepository transactionRepository;
     private final EntityRepository entityRepository;
@@ -143,8 +144,16 @@ class SqlEntityListenerTest extends IntegrationTest {
     @Test
     void onCryptoTransferList() throws Exception {
         // given
-        CryptoTransfer cryptoTransfer1 = new CryptoTransfer(1L, 1L, EntityId.of(0L, 0L, 1L, ACCOUNT));
-        CryptoTransfer cryptoTransfer2 = new CryptoTransfer(2L, -2L, EntityId.of(0L, 0L, 2L, ACCOUNT));
+        CryptoTransfer cryptoTransfer1 = new CryptoTransfer(
+                1L,
+                1L,
+                EntityId.of(0L, 0L, 1L, ACCOUNT),
+                EntityId.of(0L, 0L, 100L, ACCOUNT));
+        CryptoTransfer cryptoTransfer2 = new CryptoTransfer(
+                2L,
+                -2L,
+                EntityId.of(0L, 0L, 2L, ACCOUNT),
+                EntityId.of(0L, 0L, 200L, ACCOUNT));
 
         // when
         sqlEntityListener.onCryptoTransfer(cryptoTransfer1);
@@ -161,10 +170,14 @@ class SqlEntityListenerTest extends IntegrationTest {
     @Test
     void onNonFeeTransfer() throws Exception {
         // given
-        NonFeeTransfer nonFeeTransfer1 = new NonFeeTransfer(1L, new NonFeeTransfer.Id(1L, EntityId
-                .of(0L, 0L, 1L, ACCOUNT)));
-        NonFeeTransfer nonFeeTransfer2 = new NonFeeTransfer(-2L, new NonFeeTransfer.Id(2L, EntityId
-                .of(0L, 0L, 2L, ACCOUNT)));
+        NonFeeTransfer nonFeeTransfer1 = new NonFeeTransfer(
+                1L,
+                new NonFeeTransfer.Id(1L, EntityId.of(0L, 0L, 1L, ACCOUNT)),
+                EntityId.of(0L, 0L, 3L, ACCOUNT));
+        NonFeeTransfer nonFeeTransfer2 = new NonFeeTransfer(
+                -2L,
+                new NonFeeTransfer.Id(2L, EntityId.of(0L, 0L, 2L, ACCOUNT)),
+                EntityId.of(0L, 0L, 3L, ACCOUNT));
 
         // when
         sqlEntityListener.onNonFeeTransfer(nonFeeTransfer1);
@@ -1138,6 +1151,7 @@ class SqlEntityListenerTest extends IntegrationTest {
         nftTransfer.setId(new NftTransferId(consensusTimestamp, serialNumber, EntityId.of(tokenId, TOKEN)));
         nftTransfer.setReceiverAccountId(EntityId.of(receiverId, ACCOUNT));
         nftTransfer.setSenderAccountId(EntityId.of(senderId, ACCOUNT));
+        nftTransfer.setTransactionPayerAccountId(TRANSACTION_PAYER);
         return nftTransfer;
     }
 
@@ -1157,6 +1171,7 @@ class SqlEntityListenerTest extends IntegrationTest {
     private TokenTransfer getTokenTransfer(long amount, long consensusTimestamp, EntityId tokenId, EntityId accountId) {
         TokenTransfer tokenTransfer = new TokenTransfer();
         tokenTransfer.setAmount(amount);
+        tokenTransfer.setTransactionPayerAccountId(TRANSACTION_PAYER);
         tokenTransfer
                 .setId(new TokenTransfer.Id(consensusTimestamp, tokenId, accountId));
 

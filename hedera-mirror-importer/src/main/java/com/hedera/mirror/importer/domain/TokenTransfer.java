@@ -47,11 +47,20 @@ public class TokenTransfer implements Persistable<TokenTransfer.Id> {
         this.amount = amount;
     }
 
+    public TokenTransfer(long consensusTimestamp, long amount, EntityId tokenId, EntityId accountId,
+                         EntityId transactionPayerAccount) {
+        this(consensusTimestamp, amount, tokenId, accountId);
+        transactionPayerAccountId = transactionPayerAccount;
+    }
+
     @EmbeddedId
     @JsonUnwrapped
     private Id id;
 
     private long amount;
+
+    @Convert(converter = AccountIdConverter.class)
+    private EntityId transactionPayerAccountId;
 
     @JsonIgnore
     @Override

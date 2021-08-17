@@ -43,6 +43,11 @@ public class CryptoTransfer implements Persistable<CryptoTransfer.Id> {
         id = new CryptoTransfer.Id(amount, consensusTimestamp, entityId);
     }
 
+    public CryptoTransfer(long consensusTimestamp, long amount, EntityId entityId, EntityId transactionPayerAccountId) {
+        this(consensusTimestamp, amount, entityId);
+        this.transactionPayerAccountId = transactionPayerAccountId;
+    }
+
     /*
      * It used to be that crypto transfers could have multiple amounts for the same account, so all fields were used for
      * uniqueness. Later a change was made to aggregate amounts by account making the unique key
@@ -52,6 +57,9 @@ public class CryptoTransfer implements Persistable<CryptoTransfer.Id> {
     @EmbeddedId
     @JsonUnwrapped
     private Id id;
+
+    @Convert(converter = AccountIdConverter.class)
+    private EntityId transactionPayerAccountId;
 
     @JsonIgnore
     @Override

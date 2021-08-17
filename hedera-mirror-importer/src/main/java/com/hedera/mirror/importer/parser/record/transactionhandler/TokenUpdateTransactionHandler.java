@@ -23,6 +23,7 @@ package com.hedera.mirror.importer.parser.record.transactionhandler;
 import com.hederahashgraph.api.proto.java.NftTransfer;
 import com.hederahashgraph.api.proto.java.TokenTransferList;
 import com.hederahashgraph.api.proto.java.TokenUpdateTransactionBody;
+import com.hederahashgraph.api.proto.java.TransactionBody;
 import javax.inject.Named;
 
 import com.hedera.mirror.importer.domain.Entity;
@@ -75,6 +76,8 @@ public class TokenUpdateTransactionHandler extends AbstractEntityCrudTransaction
     }
 
     private void updateTreasury(RecordItem recordItem) {
+        TransactionBody body = recordItem.getTransactionBody();
+        var transactionPayerAccount = EntityId.of(body.getTransactionID().getAccountID()).toEntity().getId();
         for (TokenTransferList tokenTransferList : recordItem.getRecord().getTokenTransferListsList()) {
             for (NftTransfer nftTransfer : tokenTransferList.getNftTransfersList()) {
                 if (nftTransfer.getSerialNumber() == WILDCARD_SERIAL_NUMBER) {
@@ -83,7 +86,7 @@ public class TokenUpdateTransactionHandler extends AbstractEntityCrudTransaction
                     EntityId tokenId = EntityId.of(tokenTransferList.getToken());
 
                     nftRepository.updateTreasury(tokenId.getId(), previousTreasury.getId(), newTreasury.getId(),
-                            recordItem.getConsensusTimestamp());
+                            recordItem.getConsensusTimestamp(), transactionPayerAccount);
                 }
             }
         }

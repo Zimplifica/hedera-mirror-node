@@ -498,8 +498,8 @@ const parseBooleanValue = (value) => {
  * @param {String} sqlQuery MySql style query
  * @return {String} SQL query with Postgres style positional parameters
  */
-const convertMySqlStyleQueryToPostgres = (sqlQuery) => {
-  let paramsCount = 1;
+const convertMySqlStyleQueryToPostgres = (sqlQuery, convertMySqlStyleQueryToPostgres = 1) => {
+  let paramsCount = convertMySqlStyleQueryToPostgres;
   const namedParamIndex = {};
   return sqlQuery.replace(/\?([a-zA-Z][a-zA-Z0-9]*)?/g, (s) => {
     let index = namedParamIndex[s];

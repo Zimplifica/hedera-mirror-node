@@ -120,6 +120,7 @@ class EntityRecordItemListenerTokenTest extends AbstractEntityRecordItemListener
     private static final Key TOKEN_UPDATE_REF_KEY = keyFromString(KEY2);
     private static final String TOKEN_UPDATE_MEMO = "TokenUpdate memo";
     private static final long TRANSFER_TIMESTAMP = 15L;
+    private static final EntityId TRANSACTION_PAYER_ACCOUNT_ID = EntityIdEndec.decode(2000, EntityTypeEnum.ACCOUNT);
 
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -1455,6 +1456,7 @@ class EntityRecordItemListenerTokenTest extends AbstractEntityRecordItemListener
         assessedCustomFee1.setEffectivePayerAccountIds(Collections.emptyList());
         assessedCustomFee1.setId(new AssessedCustomFee.Id(FEE_COLLECTOR_ACCOUNT_ID_1, TRANSFER_TIMESTAMP));
         assessedCustomFee1.setTokenId(EntityId.EMPTY);
+        assessedCustomFee1.setTransactionPayerAccountId(EntityId.of(PAYER));
 
         // paid in FEE_DOMAIN_TOKEN_ID
         AssessedCustomFee assessedCustomFee2 = new AssessedCustomFee();
@@ -1462,6 +1464,8 @@ class EntityRecordItemListenerTokenTest extends AbstractEntityRecordItemListener
         assessedCustomFee2.setEffectivePayerAccountIds(Collections.emptyList());
         assessedCustomFee2.setId(new AssessedCustomFee.Id(FEE_COLLECTOR_ACCOUNT_ID_2, TRANSFER_TIMESTAMP));
         assessedCustomFee2.setTokenId(FEE_DOMAIN_TOKEN_ID);
+        assessedCustomFee2.setTransactionPayerAccountId(EntityId.of(PAYER));
+
         List<AssessedCustomFee> assessedCustomFees = List.of(assessedCustomFee1, assessedCustomFee2);
 
         // build the corresponding protobuf assessed custom fee list

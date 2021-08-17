@@ -10,10 +10,11 @@ create type token_type AS ENUM ('FUNGIBLE_COMMON', 'NON_FUNGIBLE_UNIQUE');
 -- assessed_custom_fee
 create table if not exists assessed_custom_fee
 (
-    amount               bigint not null,
-    collector_account_id bigint not null,
-    consensus_timestamp  bigint not null,
-    token_id             bigint
+    amount                       bigint not null,
+    collector_account_id         bigint not null,
+    consensus_timestamp          bigint not null,
+    token_id                     bigint,
+    transaction_payer_account_id bigint not null
 );
 comment on table assessed_custom_fee is 'Assessed custom fees for HTS transactions';
 
@@ -90,9 +91,10 @@ comment on table contract_result is 'Crypto contract execution results';
 -- crypto_transfer
 create table if not exists crypto_transfer
 (
-    entity_id           bigint not null,
-    consensus_timestamp bigint not null,
-    amount              bigint not null
+    entity_id                    bigint not null,
+    consensus_timestamp          bigint not null,
+    amount                       bigint not null,
+    transaction_payer_account_id bigint not null
 ) partition by range (consensus_timestamp);
 comment on table crypto_transfer is 'Crypto account Hbar transfers';
 
@@ -185,20 +187,22 @@ comment on table nft is 'Non-Fungible Tokens (NFTs) minted on network';
 -- nft_transfer
 create table if not exists nft_transfer
 (
-    consensus_timestamp bigint not null,
-    receiver_account_id bigint,
-    sender_account_id   bigint,
-    serial_number       bigint not null,
-    token_id            bigint not null
+    consensus_timestamp          bigint not null,
+    receiver_account_id          bigint,
+    sender_account_id            bigint,
+    serial_number                bigint not null,
+    token_id                     bigint not null,
+    transaction_payer_account_id bigint not null
 ) partition by range (consensus_timestamp);
 comment on table nft_transfer is 'Crypto account nft transfers';
 
 -- non_fee_transfer
 create table if not exists non_fee_transfer
 (
-    entity_id           bigint not null,
-    consensus_timestamp bigint not null,
-    amount              bigint not null
+    entity_id                    bigint not null,
+    consensus_timestamp          bigint not null,
+    amount                       bigint not null,
+    transaction_payer_account_id bigint not null
 );
 comment on table non_fee_transfer is 'Crypto account non fee Hbar transfers';
 
@@ -327,10 +331,11 @@ comment on table token_balance is 'Crypto account token balances';
 --- token_transfer
 create table if not exists token_transfer
 (
-    token_id            bigint not null,
-    account_id          bigint not null,
-    consensus_timestamp bigint not null,
-    amount              bigint not null
+    token_id                     bigint not null,
+    account_id                   bigint not null,
+    consensus_timestamp          bigint not null,
+    amount                       bigint not null,
+    transaction_payer_account_id bigint not null
 ) partition by range (consensus_timestamp);
 comment on table token_transfer is 'Crypto account token transfers';
 

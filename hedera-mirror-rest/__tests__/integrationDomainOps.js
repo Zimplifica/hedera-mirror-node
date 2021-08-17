@@ -242,16 +242,17 @@ const addAssessedCustomFee = async (assessedCustomFee) => {
     '}',
   ].join('');
 
+  const {amount, collector_account_id, consensus_timestamp, token_id, payer_account_id} = assessedCustomFee;
   await sqlConnection.query(
-    `insert into
-         assessed_custom_fee (amount, collector_account_id, consensus_timestamp, effective_payer_account_ids, token_id)
-         values ($1, $2, $3, $4, $5);`,
+    `insert into assessed_custom_fee (amount, collector_account_id, consensus_timestamp, effective_payer_account_ids, token_id, transaction_payer_account_id)
+     values ($1, $2, $3, $4, $5, $6);`,
     [
       amount,
       EntityId.fromString(collector_account_id).getEncodedId(),
       consensus_timestamp.toString(),
       effectivePayerAccountIds,
       EntityId.fromString(token_id, 'tokenId', true).getEncodedId(),
+      EntityId.fromString(payer_account_id).getEncodedId(),
     ]
   );
 };
@@ -375,9 +376,14 @@ const addTransaction = async (transaction) => {
     payerAccount,
     nodeAccount
   );
-  await insertTransfers('non_fee_transfer', transaction.consensus_timestamp, transaction.non_fee_transfers);
-  await insertTokenTransfers(transaction.consensus_timestamp, transaction.token_transfer_list);
-  await insertNftTransfers(transaction.consensus_timestamp, transaction.nft_transfer_list);
+  await insertTransfers(
+    'non_fee_transfer',
+    transaction.consensus_timestamp,
+    transaction.non_fee_transfers,
+    payerAccount
+  );
+  await insertTokenTransfers(transaction.consensus_timestamp, transaction.token_transfer_list, payerAccount);
+  await insertNftTransfers(transaction.consensus_timestamp, transaction.nft_transfer_list, payerAccount);
 };
 
 const insertTransfers = async (
@@ -391,33 +397,38 @@ const insertTransfers = async (
   if (transfers.length === 0 && hasChargedTransactionFee && payerAccountId) {
     // insert default crypto transfers to node and treasury
     await sqlConnection.query(
-      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id)
-       VALUES ($1, $2, $3);`,
-      [consensusTimestamp.toString(), NODE_FEE, nodeAccount || DEFAULT_NODE_ID]
+      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id, transaction_payer_account_id)
+       VALUES ($1, $2, $3, $4);`,
+      [consensusTimestamp.toString(), NODE_FEE, nodeAccount || DEFAULT_NODE_ID, payerAccountId]
     );
     await sqlConnection.query(
-      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id)
-       VALUES ($1, $2, $3);`,
-      [consensusTimestamp.toString(), NETWORK_FEE, DEFAULT_TREASURY_ID]
+      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id, transaction_payer_account_id)
+       VALUES ($1, $2, $3, $4);`,
+      [consensusTimestamp.toString(), NETWORK_FEE, DEFAULT_TREASURY_ID, payerAccountId]
     );
     await sqlConnection.query(
-      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id)
-       VALUES ($1, $2, $3);`,
-      [consensusTimestamp.toString(), -(NODE_FEE + NETWORK_FEE), payerAccountId]
+      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id, transaction_payer_account_id)
+       VALUES ($1, $2, $3, $4);`,
+      [consensusTimestamp.toString(), -(NODE_FEE + NETWORK_FEE), payerAccountId, payerAccountId]
     );
   }
 
   for (let i = 0; i < transfers.length; ++i) {
     const transfer = transfers[i];
     await sqlConnection.query(
-      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id)
-       VALUES ($1, $2, $3);`,
-      [consensusTimestamp.toString(), transfer.amount, EntityId.fromString(transfer.account).getEncodedId()]
+      `INSERT INTO ${tableName} (consensus_timestamp, amount, entity_id, transaction_payer_account_id)
+       VALUES ($1, $2, $3, $4);`,
+      [
+        consensusTimestamp.toString(),
+        transfer.amount,
+        EntityId.fromString(transfer.account).getEncodedId(),
+        payerAccountId,
+      ]
     );
   }
 };
 
-const insertTokenTransfers = async (consensusTimestamp, transfers) => {
+const insertTokenTransfers = async (consensusTimestamp, transfers, payerAccountId) => {
   if (!transfers || transfers.length === 0) {
     return;
   }
@@ -428,15 +439,19 @@ const insertTokenTransfers = async (consensusTimestamp, transfers) => {
       EntityId.fromString(transfer.token_id).getEncodedId(),
       EntityId.fromString(transfer.account).getEncodedId(),
       transfer.amount,
+      payerAccountId,
     ];
   });
 
   await sqlConnection.query(
-    pgformat('INSERT INTO token_transfer (consensus_timestamp, token_id, account_id, amount) VALUES %L', tokenTransfers)
+    pgformat(
+      'INSERT INTO token_transfer (consensus_timestamp, token_id, account_id, amount, transaction_payer_account_id) VALUES %L',
+      tokenTransfers
+    )
   );
 };
 
-const insertNftTransfers = async (consensusTimestamp, nftTransferList) => {
+const insertNftTransfers = async (consensusTimestamp, nftTransferList, payerAccountId) => {
   if (!nftTransferList || nftTransferList.length === 0) {
     return;
   }
@@ -448,12 +463,13 @@ const insertNftTransfers = async (consensusTimestamp, nftTransferList) => {
       EntityId.fromString(transfer.sender_account_id, '', true).getEncodedId(),
       transfer.serial_number,
       EntityId.fromString(transfer.token_id).getEncodedId().toString(),
+      payerAccountId,
     ];
   });
 
   await sqlConnection.query(
     pgformat(
-      'INSERT INTO nft_transfer (consensus_timestamp, receiver_account_id, sender_account_id, serial_number, token_id) VALUES %L',
+      'INSERT INTO nft_transfer (consensus_timestamp, receiver_account_id, sender_account_id, serial_number, token_id, transaction_payer_account_id) VALUES %L',
       nftTransfers
     )
   );

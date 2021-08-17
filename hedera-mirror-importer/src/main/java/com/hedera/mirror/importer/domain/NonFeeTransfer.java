@@ -46,6 +46,9 @@ public class NonFeeTransfer implements Persistable<NonFeeTransfer.Id> {
     @JsonUnwrapped
     private NonFeeTransfer.Id id;
 
+    @Convert(converter = AccountIdConverter.class)
+    private EntityId transactionPayerAccountId;
+
     @JsonIgnore
     @Override
     public boolean isNew() {

@@ -48,6 +48,9 @@ public class NftTransfer implements Persistable<NftTransferId> {
     @JsonSerialize(using = EntityIdSerializer.class)
     private EntityId senderAccountId;
 
+    @Convert(converter = AccountIdConverter.class)
+    private EntityId transactionPayerAccountId;
+
     @JsonIgnore
     @Override
     public boolean isNew() {

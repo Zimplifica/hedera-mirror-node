@@ -39,9 +39,9 @@ create index if not exists contr_res__consensus
 
 -- crypto_transfer
 create index if not exists crypt_trans__timestamp
-    on crypto_transfer (consensus_timestamp);
+    on crypto_transfer (consensus_timestamp, transaction_payer_account_id);
 create index if not exists crypt_trans__id_timestamp
-    on crypto_transfer (entity_id, consensus_timestamp)
+    on crypto_transfer (entity_id, consensus_timestamp, transaction_payer_account_id)
     where entity_id != 98;
 -- id corresponding to treasury address 0.0.98
 
@@ -86,11 +86,11 @@ alter table nft
 
 -- nft_transfer
 create unique index if not exists nft_trans__timestamp_token_id_serial
-    on nft_transfer (consensus_timestamp desc, token_id desc, serial_number desc);
+    on nft_transfer (consensus_timestamp desc, token_id desc, serial_number desc, transaction_payer_account_id);
 
 -- non_fee_transfer
 create index if not exists non_fee_trans__timestamp
-    on non_fee_transfer (consensus_timestamp);
+    on non_fee_transfer (consensus_timestamp, transaction_payer_account_id);
 
 -- record_file
 alter table record_file
@@ -144,9 +144,9 @@ alter table token_balance
 
 -- token_transfer
 create index if not exists token_transf__token_acc_timestamp
-    on token_transfer (consensus_timestamp desc, token_id desc, account_id desc);
+    on token_transfer (consensus_timestamp desc, token_id desc, account_id desc, transaction_payer_account_id);
 create index if not exists token_transf__acc_timestamp
-    on token_transfer (account_id, consensus_timestamp desc);
+    on token_transfer (account_id, consensus_timestamp desc, transaction_payer_account_id);
 
 -- topic_message
 alter table if exists topic_message
@@ -158,7 +158,7 @@ create unique index if not exists topic_msg__topic_num_realm_num_seqnum
 
 -- transaction
 alter table if exists transaction
-    add constraint transaction__pk primary key (consensus_ns, entity_id);
+    add constraint transaction__pk primary key (consensus_ns, payer_account_id);
 create index if not exists transaction__trans_id
     on transaction (valid_start_ns, payer_account_id);
 create index if not exists trans__payer_acc_id

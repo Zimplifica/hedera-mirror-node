@@ -29,7 +29,7 @@ select create_distributed_table('account_balance_file', 'node_account_id', coloc
 -- select create_distributed_table('contract_result', 'entity_id', colocate_with => 'entity');
 
 -- crypto_transfer
-select create_distributed_table('crypto_transfer', 'entity_id', colocate_with => 'entity');
+select create_distributed_table('crypto_transfer', 'transaction_payer_account_id', colocate_with => 'entity');
 
 -- custom_fee
 select create_distributed_table('custom_fee', 'token_id', colocate_with => 'entity');
@@ -47,10 +47,10 @@ select create_distributed_table('file_data', 'entity_id', colocate_with => 'enti
 select create_distributed_table('nft', 'token_id', colocate_with => 'entity');
 
 -- nft_transfer
-select create_distributed_table('nft_transfer', 'token_id', colocate_with => 'entity');
+select create_distributed_table('nft_transfer', 'transaction_payer_account_id', colocate_with => 'entity');
 
 -- non_fee_transfer
-select create_distributed_table('non_fee_transfer', 'entity_id', colocate_with => 'entity');
+select create_distributed_table('non_fee_transfer', 'transaction_payer_account_id', colocate_with => 'entity');
 
 -- record_file
 select create_distributed_table('record_file', 'node_account_id', colocate_with => 'entity');
@@ -77,7 +77,7 @@ select create_distributed_table('token_account', 'token_id', colocate_with => 'e
 select create_distributed_table('token_balance', 'account_id', colocate_with => 'entity');
 
 -- token_transfer
-select create_distributed_table('token_transfer', 'token_id', colocate_with => 'entity');
+select create_distributed_table('token_transfer', 'transaction_payer_account_id', colocate_with => 'entity');
 
 -- topic_message
 select create_distributed_table('topic_message', 'entity_id', colocate_with => 'entity');
@@ -86,7 +86,7 @@ select create_distributed_table('topic_message', 'entity_id', colocate_with => '
 -- unclear the right distribution column to use for transactions.
 -- entity_id and payer_account_id were considered but full outer joins with non distribution columns aren't supported with citus
 -- for now leave as growing list on coordinator node with old partitions being removed for hot path
---select create_distributed_table('transaction', 'payer_account_id', colocate_with => 'entity');
+select create_distributed_table('transaction', 'payer_account_id', colocate_with => 'entity');
 
 -- transaction_signature
 select create_distributed_table('transaction_signature', 'entity_id', colocate_with => 'entity');

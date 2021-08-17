@@ -82,6 +82,7 @@ import com.hedera.mirror.importer.repository.TransactionSignatureRepository;
 class RepositoryEntityListenerTest extends IntegrationTest {
 
     private static final EntityId ENTITY_ID = EntityId.of("0.0.3", EntityTypeEnum.ACCOUNT);
+    private static final EntityId PAYER_ACCOUNT_ID = EntityId.of("0.0.1000", EntityTypeEnum.ACCOUNT);
     private static final EntityId TOKEN_ID = EntityId.of("0.0.7", EntityTypeEnum.TOKEN);
 
     private final ContractResultRepository contractResultRepository;
@@ -119,12 +120,14 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         assessedCustomFee1.setAmount(10L);
         assessedCustomFee1.setId(new AssessedCustomFee.Id(ENTITY_ID, 1010L));
         assessedCustomFee1.setTokenId(TOKEN_ID);
+        assessedCustomFee1.setTransactionPayerAccountId(PAYER_ACCOUNT_ID);
 
         AssessedCustomFee assessedCustomFee2 = new AssessedCustomFee();
         assessedCustomFee2.setAmount(11L);
         assessedCustomFee2.setEffectivePayerAccountIds(List.of(1002L, 1003L));
         assessedCustomFee2.setId(new AssessedCustomFee.Id(ENTITY_ID, 1031L));
         assessedCustomFee2.setTokenId(TOKEN_ID);
+        assessedCustomFee2.setTransactionPayerAccountId(PAYER_ACCOUNT_ID);
 
         repositoryEntityListener.onAssessedCustomFee(assessedCustomFee1);
         repositoryEntityListener.onAssessedCustomFee(assessedCustomFee2);
@@ -145,7 +148,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
 
     @Test
     void onCryptoTransfer() {
-        CryptoTransfer cryptoTransfer = new CryptoTransfer(1L, 100L, ENTITY_ID);
+        CryptoTransfer cryptoTransfer = new CryptoTransfer(1L, 100L, ENTITY_ID, PAYER_ACCOUNT_ID);
         repositoryEntityListener.onCryptoTransfer(cryptoTransfer);
         assertThat(cryptoTransferRepository.findAll()).containsExactly(cryptoTransfer);
     }
@@ -247,6 +250,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         NonFeeTransfer nonFeeTransfer = new NonFeeTransfer();
         nonFeeTransfer.setAmount(100L);
         nonFeeTransfer.setId(new NonFeeTransfer.Id(1L, ENTITY_ID));
+        nonFeeTransfer.setTransactionPayerAccountId(PAYER_ACCOUNT_ID);
         repositoryEntityListener.onNonFeeTransfer(nonFeeTransfer);
         assertThat(nonFeeTransferRepository.findAll()).containsExactly(nonFeeTransfer);
     }
@@ -298,6 +302,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         nftTransfer.setId(new NftTransferId(1L, 1L, EntityId.of("0.0.123", EntityTypeEnum.TOKEN)));
         nftTransfer.setReceiverAccountId(EntityId.of("0.0.456", EntityTypeEnum.ACCOUNT));
         nftTransfer.setSenderAccountId(EntityId.of("0.0.789", EntityTypeEnum.ACCOUNT));
+        nftTransfer.setTransactionPayerAccountId(PAYER_ACCOUNT_ID);
         repositoryEntityListener.onNftTransfer(nftTransfer);
         assertThat(nftTransferRepository.findAll()).containsExactly(nftTransfer);
     }
@@ -453,6 +458,7 @@ class RepositoryEntityListenerTest extends IntegrationTest {
         TokenTransfer tokenTransfer = new TokenTransfer();
         tokenTransfer.setAmount(1000);
         tokenTransfer.setId(new TokenTransfer.Id(2L, TOKEN_ID, ENTITY_ID));
+        tokenTransfer.setTransactionPayerAccountId(PAYER_ACCOUNT_ID);
         repositoryEntityListener.onTokenTransfer(tokenTransfer);
         assertThat(tokenTransferRepository.findAll()).containsExactly(tokenTransfer);
     }

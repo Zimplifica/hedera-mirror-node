@@ -59,6 +59,9 @@ public class AssessedCustomFee implements Persistable<AssessedCustomFee.Id> {
     @Convert(converter = TokenIdConverter.class)
     private EntityId tokenId;
 
+    @Convert(converter = AccountIdConverter.class)
+    private EntityId transactionPayerAccountId;
+
     @JsonIgnore
     @Override
     public boolean isNew() {
