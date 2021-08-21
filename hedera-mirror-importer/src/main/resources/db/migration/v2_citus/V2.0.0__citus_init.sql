@@ -203,7 +203,7 @@ create table if not exists non_fee_transfer
     consensus_timestamp          bigint not null,
     amount                       bigint not null,
     transaction_payer_account_id bigint not null
-);
+) partition by range (consensus_timestamp);
 comment on table non_fee_transfer is 'Crypto account non fee Hbar transfers';
 
 -- record_file

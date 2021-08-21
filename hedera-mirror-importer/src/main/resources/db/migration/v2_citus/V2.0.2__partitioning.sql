@@ -70,6 +70,14 @@ create table nft_transfer_2020 partition of nft_transfer
 create table nft_transfer_2021 partition of nft_transfer
     for values from (1609459199000000000) to (1640995199000000000);
 
+-- non_fee_transfer
+create table non_fee_transfer_2019 partition of non_fee_transfer
+    for values from (0) to (1577836799000000000);
+create table non_fee_transfer_2020 partition of non_fee_transfer
+    for values from (1577836799000000000) to (1609459199000000000);
+create table non_fee_transfer_2021 partition of non_fee_transfer
+    for values from (1609459199000000000) to (1640995199000000000);
+
 -- record_file
 create table rec_file_2019 partition of record_file
     for values from (0) to (1577836799000000000);

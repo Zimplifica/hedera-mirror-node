@@ -27,6 +27,7 @@ import javax.persistence.Convert;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Persistable;
 
 import com.hedera.mirror.importer.converter.AccountIdConverter;
@@ -34,7 +35,14 @@ import com.hedera.mirror.importer.converter.EntityIdSerializer;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class NftTransfer implements Persistable<NftTransferId> {
+    public NftTransfer(long consensusTimestamp, long serialNumber, EntityId tokenId,
+                       EntityId senderAccountId, EntityId receiverAccountId) {
+        id = new NftTransferId(consensusTimestamp, serialNumber, tokenId);
+        this.receiverAccountId = receiverAccountId;
+        this.senderAccountId = senderAccountId;
+    }
 
     @JsonUnwrapped
     @EmbeddedId

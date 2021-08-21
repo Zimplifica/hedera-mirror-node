@@ -1,0 +1,89 @@
+version: "3"
+
+services:
+  master:
+    container_name: "${COMPOSE_PROJECT_NAME:-citus}_coordinator"
+    image: 'citusdata/citus:10.1.0'
+    ports: [ "${COORDINATOR_EXTERNAL_PORT:-5432}:5432" ]
+    labels: [ 'com.citusdata.role=Master' ]
+    environment: &AUTH
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: mirror_node_pass
+      PGUSER: "${POSTGRES_USER:-postgres}"
+      PGPASSWORD: mirror_node_pass
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
+      TIMESCALEDB: "true"
+      DB_SCHEMA: mirrornode
+      GRPC_PASSWORD: mirror_grpc_pass
+      IMPORTER_PASSWORD: mirror_importer_pass
+      OWNER_PASSWORD: mirror_node_pass
+      REST_PASSWORD: mirror_api_pass
+      ROSETTA_PASSWORD: mirror_rosetta_pass
+      SPRING_PROFILES_ACTIVE: v2
+    volumes:
+      #      - ./db:/var/lib/postgresql/data
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+
+  manager:
+    container_name: "${COMPOSE_PROJECT_NAME:-citus}_manager"
+    image: 'citusdata/membership-manager:0.3.0'
+    volumes:
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - healthcheck-volume:/healthcheck
+    depends_on: [ master ]
+    environment: *AUTH
+
+  worker:
+    deploy:
+      replicas: 3
+    image: 'citusdata/citus:10.1.0'
+    labels: [ 'com.citusdata.role=Worker' ]
+    depends_on: [ manager ]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes:
+      - healthcheck-volume:/healthcheck
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh
+
+  importer:
+    #    depends_on: [ redis ]
+    image: nanahedera/hedera:hedera-mirror-importer-0.38.0-CITUS
+    #    pull_policy: always
+    restart: unless-stopped
+    environment:
+      HEDERA_MIRROR_IMPORTER_DB_HOST: c.citus-poc-srvr-grp.postgres.database.azure.com
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/usr/etc/hedera-mirror-importer/
+      SPRING_PROFILES_ACTIVE: "v2-citus"
+      SPRING_REDIS_HOST: redis
+    volumes:
+      - ../hedera-mirror-importer/src/main/resources/application-citus-cloud-perf.yml:/usr/etc/hedera-mirror-importer/application.yml
+      - ../hedera-mirror-importer/src/main/resources/addressbook/performance.f102.bin:/usr/etc/hedera-mirror-importer/addressbook.bin
+
+  redis:
+    depends_on: [ manager ]
+    image: redis:6.2.3-alpine
+    restart: unless-stopped
+    stop_grace_period: 2m
+    stop_signal: SIGTERM
+    tty: true
+    ports:
+      - 6379:6379
+
+  rest:
+    depends_on: [ master ]
+    image: nanahedera/hedera:hedera-mirror-rest-0.38.0-CITUS
+    #    pull_policy: always
+    environment:
+      HEDERA_MIRROR_REST_DB_HOST: master
+      REST_PASSWORD: mirror_api_pass
+      REST_USERNAME: mirror_api
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 5551:5551
+    volumes:
+      - ../hedera-mirror-rest/config/application.yml:/home/node/app/config/application.yml
+
+volumes:
+  healthcheck-volume:

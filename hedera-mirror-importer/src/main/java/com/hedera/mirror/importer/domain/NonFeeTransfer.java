@@ -39,6 +39,10 @@ import com.hedera.mirror.importer.converter.AccountIdConverter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NonFeeTransfer implements Persistable<NonFeeTransfer.Id> {
+    public NonFeeTransfer(long consensusTimestamp, long amount, EntityId entityId) {
+        id = new NonFeeTransfer.Id(consensusTimestamp, entityId);
+        this.amount = amount;
+    }
 
     private Long amount;
 

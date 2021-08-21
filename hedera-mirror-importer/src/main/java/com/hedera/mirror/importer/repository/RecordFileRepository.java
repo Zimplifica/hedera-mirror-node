@@ -28,6 +28,7 @@ import com.hedera.mirror.importer.domain.RecordFile;
 public interface RecordFileRepository extends StreamFileRepository<RecordFile, Long> {
 
     @Override
-    @Query(value = "select * from record_file order by consensus_end desc limit 1", nativeQuery = true)
+    @Query(value = "select * from record_file where node_account_id = 3 order by consensus_end desc limit 1",
+            nativeQuery = true)
     Optional<RecordFile> findLatest();
 }
