@@ -28,6 +28,7 @@ import com.hedera.mirror.importer.domain.AccountBalanceFile;
 public interface AccountBalanceFileRepository extends StreamFileRepository<AccountBalanceFile, Long> {
 
     @Override
-    @Query(value = "select * from account_balance_file order by consensus_timestamp desc limit 1", nativeQuery = true)
+    @Query(value = "select * from account_balance_file where node_account_id = 3 order by consensus_timestamp desc " +
+            "limit 1", nativeQuery = true)
     Optional<AccountBalanceFile> findLatest();
 }

@@ -41,7 +41,6 @@ import org.bouncycastle.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -123,6 +122,8 @@ class SqlEntityListenerTest extends IntegrationTest {
     private static Key keyFromString(String key) {
         return Key.newBuilder().setEd25519(ByteString.copyFromUtf8(key)).build();
     }
+    private final String fileName = "2019-08-30T18_10_00.419072Z.rcd";
+    private RecordFile recordFile;
 
     @BeforeEach
     final void beforeEach() {

@@ -27,7 +27,11 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import lombok.extern.log4j.Log4j2;
@@ -131,6 +135,7 @@ public class SqlEntityListener extends AbstractEntityListener implements RecordS
     // during upsert pgcopy, the merged state at time T is again merged with the initial state before the batch to
     // get the full state at time T
     private final Map<TokenAccountKey, TokenAccount> tokenAccountState;
+    private final ExecutorService persistanceThreadPool;
 
     public SqlEntityListener(RecordParserProperties recordParserProperties, SqlProperties sqlProperties,
                              DataSource dataSource,
@@ -190,8 +195,9 @@ public class SqlEntityListener extends AbstractEntityListener implements RecordS
         nfts = new HashMap<>();
         schedules = new HashMap<>();
         tokens = new HashMap<>();
-
         tokenAccountState = new HashMap<>();
+
+        persistanceThreadPool = Executors.newFixedThreadPool(17);
     }
 
     @Override
@@ -252,15 +258,15 @@ public class SqlEntityListener extends AbstractEntityListener implements RecordS
             Stopwatch stopwatch = Stopwatch.createStarted();
 
             // insert only operations
-            assessedCustomFeePgCopy.copy(assessedCustomFees, connection);
-            contractResultPgCopy.copy(contractResults, connection);
-            cryptoTransferPgCopy.copy(cryptoTransfers, connection);
-            customFeePgCopy.copy(customFees, connection);
-            fileDataPgCopy.copy(fileData, connection);
-            liveHashPgCopy.copy(liveHashes, connection);
-            topicMessagePgCopy.copy(topicMessages, connection);
-            transactionPgCopy.copy(transactions, connection);
-            transactionSignaturePgCopy.copy(transactionSignatures, connection);
+//            assessedCustomFeePgCopy.copy(assessedCustomFees, connection);
+//            contractResultPgCopy.copy(contractResults, connection);
+//            cryptoTransferPgCopy.copy(cryptoTransfers, connection);
+//            customFeePgCopy.copy(customFees, connection);
+//            fileDataPgCopy.copy(fileData, connection);
+//            liveHashPgCopy.copy(liveHashes, connection);
+//            topicMessagePgCopy.copy(topicMessages, connection);
+//            transactionPgCopy.copy(transactions, connection);
+//            transactionSignaturePgCopy.copy(transactionSignatures, connection);
 
             // insert operations with conflict management
             entityPgCopy.copy(entities.values(), connection);
@@ -271,9 +277,39 @@ public class SqlEntityListener extends AbstractEntityListener implements RecordS
             schedulePgCopy.copy(schedules.values(), connection);
 
             // transfers operations should be last to ensure insert logic completeness, entities should already exist
-            nonFeeTransferPgCopy.copy(nonFeeTransfers, connection);
-            nftTransferPgCopy.copy(nftTransfers, connection);
-            tokenTransferPgCopy.copy(tokenTransfers, connection);
+//            nonFeeTransferPgCopy.copy(nonFeeTransfers, connection);
+//            nftTransferPgCopy.copy(nftTransfers, connection);
+//            tokenTransferPgCopy.copy(tokenTransfers, connection);
+
+            List<Callable<Object>> entityTasks = new ArrayList<>(13);
+            entityTasks.add(Executors
+                    .callable(() -> copyOnSeparateConnection(assessedCustomFeePgCopy, assessedCustomFees)));
+            entityTasks.add(Executors.callable(() -> copyOnSeparateConnection(contractResultPgCopy,
+                    contractResults)));
+            entityTasks.add(Executors.callable(() -> copyOnSeparateConnection(customFeePgCopy, customFees)));
+            entityTasks.add(Executors.callable(() -> copyOnSeparateConnection(fileDataPgCopy, fileData)));
+            entityTasks.add(Executors.callable(() -> copyOnSeparateConnection(liveHashPgCopy, liveHashes)));
+            entityTasks.add(Executors.callable(() -> copyOnSeparateConnection(topicMessagePgCopy, topicMessages)));
+            entityTasks.add(Executors.callable(() -> copyOnSeparateConnection(transactionPgCopy, transactions)));
+            entityTasks.add(Executors
+                    .callable(() -> copyOnSeparateConnection(transactionSignaturePgCopy, transactionSignatures)));
+//            entityTasks.add(Executors
+//                    .callable(() -> upsertOnSeparateConnection(tokenAccountPgCopy, tokenAccounts.values())));
+//            entityTasks.add(Executors.callable(() -> upsertOnSeparateConnection(nftPgCopy, nfts.values())));
+//            entityTasks.add(Executors.callable(() -> upsertOnSeparateConnection(schedulePgCopy, schedules.values
+// ())));
+            // temp table creation seems to not persist when run inside a thread pool
+            persistanceThreadPool.invokeAll(entityTasks);
+
+            List<Callable<Object>> transferTasks = new ArrayList<>(4);
+            transferTasks
+                    .add(Executors.callable(() -> copyOnSeparateConnection(cryptoTransferPgCopy, cryptoTransfers)));
+            transferTasks
+                    .add(Executors.callable(() -> copyOnSeparateConnection(nonFeeTransferPgCopy, nonFeeTransfers)));
+            transferTasks.add(Executors.callable(() -> copyOnSeparateConnection(nftTransferPgCopy, nftTransfers)));
+            transferTasks.add(Executors.callable(() -> copyOnSeparateConnection(tokenTransferPgCopy,
+                    tokenTransfers)));
+            persistanceThreadPool.invokeAll(transferTasks);
 
             log.info("Completed batch inserts in {}", stopwatch);
         } catch (ParserException e) {
@@ -282,6 +318,26 @@ public class SqlEntityListener extends AbstractEntityListener implements RecordS
             throw new ParserException(e);
         } finally {
             cleanup();
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
+    public void copyOnSeparateConnection(PgCopy pgCopy, Collection collection) {
+        if (collection == null || collection.isEmpty()) {
+            return;
+        }
+
+        Connection connection = null;
+        try {
+            connection = DataSourceUtils.getConnection(dataSource);
+            pgCopy.copy(collection, connection);
+        } catch (ParserException e) {
+            Thread.currentThread().interrupt();
+            throw e;
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+            throw new ParserException(e);
+        } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
