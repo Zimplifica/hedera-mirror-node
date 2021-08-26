@@ -62,7 +62,7 @@ class TransactionTypeService {
     if (this.transactionTypeToProtoMap.size > 0) {
       return;
     }
-
+    
     const transactionTypes = await this.getTransactionTypes();
     this.populateTransactionTypeMaps(transactionTypes);
   }

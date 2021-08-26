@@ -9,16 +9,16 @@ services:
     environment: &AUTH
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: mirror_node_pass
-      PGUSER: "${POSTGRES_USER:-postgres}"
-      PGPASSWORD: mirror_node_pass
+      PGUSER: "${POSTGRES_USER:-citus}"
+      PGPASSWORD: mirror_node_pass_1234
       POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
       TIMESCALEDB: "true"
-      DB_SCHEMA: mirrornode
-      GRPC_PASSWORD: mirror_grpc_pass
-      IMPORTER_PASSWORD: mirror_importer_pass
-      OWNER_PASSWORD: mirror_node_pass
-      REST_PASSWORD: mirror_api_pass
-      ROSETTA_PASSWORD: mirror_rosetta_pass
+      DB_SCHEMA: public
+      GRPC_PASSWORD: mirror_grpc_pass_1234
+      IMPORTER_PASSWORD: mirror_importer_pass_1234
+      OWNER_PASSWORD: mirror_node_pass_1234
+      REST_PASSWORD: mirror_api_rest_1234
+      ROSETTA_PASSWORD: mirror_rosetta_pass_1234
       SPRING_PROFILES_ACTIVE: v2
     volumes:
       #      - ./db:/var/lib/postgresql/data
@@ -76,8 +76,8 @@ services:
     #    pull_policy: always
     environment:
       HEDERA_MIRROR_REST_DB_HOST: master
-      REST_PASSWORD: mirror_api_pass
-      REST_USERNAME: mirror_api
+      REST_PASSWORD: mirror_api_rest_1234
+      REST_USERNAME: restrole
     restart: unless-stopped
     tty: true
     ports:

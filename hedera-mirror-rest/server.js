@@ -91,6 +91,7 @@ const poolConfig = {
   connectionTimeoutMillis: config.db.pool.connectionTimeout,
   max: config.db.pool.maxConnections,
   statement_timeout: config.db.pool.statementTimeout,
+  ssl: config.db.ssl,
 };
 
 if (config.db.tls.enabled) {

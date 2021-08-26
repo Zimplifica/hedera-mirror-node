@@ -114,6 +114,36 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>dockerBuild</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>dockerPush</id>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <images>
+                        <image>
+                            <external>
+                                <type>properties</type>
+                                <prefix>docker</prefix>
+                                <mode>override</mode>
+                            </external>
+                            <build>
+                                <contextDir>${project.basedir}</contextDir>
+                            </build>
+                            <name>${docker.push.repository}:${project.artifactId}-${docker.tag.version}</name>
+                        </image>
+                    </images>
+                </configuration>
             </plugin>
             <!-- Attempt to create the REST API client in Java to validate our OpenAPI spec. -->
             <plugin>
