@@ -60,7 +60,8 @@ public abstract class AbstractUpsertQueryGenerator<T> implements UpsertQueryGene
     @Value("${spring.flyway.locations:v1}")
     private String version;
 
-    private final Class<T> metaModelClass = (Class<T>) new TypeToken<T>(getClass()) {}.getRawType();
+    private final Class<T> metaModelClass = (Class<T>) new TypeToken<T>(getClass()) {
+    }.getRawType();
 
     @Getter(lazy = true)
     private final String insertQuery = generateInsertQuery();
@@ -94,7 +95,7 @@ public abstract class AbstractUpsertQueryGenerator<T> implements UpsertQueryGene
 
     @Override
     public String getCreateTempTableQuery() {
-        return String.format("create temporary table if not exists %s on commit drop as table %s limit 0",
+        return String.format("create temporary table if not exists %s as table %s limit 0",
                 getTemporaryTableName(), getFinalTableName());
     }
 

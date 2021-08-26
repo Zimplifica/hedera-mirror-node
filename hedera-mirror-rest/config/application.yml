@@ -16,6 +16,8 @@ hedera:
           cert: ''
           enabled: false
           key: ''
+        schema: public
+        ssl: false
         username: mirror_api
       includeHostInLink: false
       log:
