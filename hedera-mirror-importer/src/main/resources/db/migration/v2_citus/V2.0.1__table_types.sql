@@ -8,7 +8,7 @@
 select create_distributed_table('entity', 'id');
 
 -- assessed_custom_fee
-select create_distributed_table('assessed_custom_fee', 'token_id', colocate_with => 'entity');
+select create_distributed_table('assessed_custom_fee', 'transaction_payer_account_id', colocate_with => 'entity');
 
 -- account_balance
 select create_distributed_table('account_balance', 'account_id', colocate_with => 'entity');
