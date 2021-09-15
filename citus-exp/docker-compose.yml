@@ -21,7 +21,6 @@ services:
       ROSETTA_PASSWORD: mirror_rosetta_pass
       SPRING_PROFILES_ACTIVE: v2
     volumes:
-      #      - ./db:/var/lib/postgresql/data
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
 
   manager:
@@ -44,12 +43,12 @@ services:
     volumes:
       - healthcheck-volume:/healthcheck
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
-      - ./docker-entrypoint.sh:/docker-entrypoint.sh
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh # need to look into an image or ticket that default includes this
 
   importer:
     depends_on: [ redis ]
     image: nanahedera/hedera:hedera-mirror-importer-0.38.0-CITUS
-    #    pull_policy: always
+    pull_policy: always
     restart: unless-stopped
     environment:
       HEDERA_MIRROR_IMPORTER_DB_HOST: master
@@ -73,7 +72,7 @@ services:
   rest:
     depends_on: [ master ]
     image: nanahedera/hedera:hedera-mirror-rest-0.38.0-CITUS
-    #    pull_policy: always
+    pull_policy: always
     environment:
       HEDERA_MIRROR_REST_DB_HOST: master
       REST_PASSWORD: mirror_api_pass

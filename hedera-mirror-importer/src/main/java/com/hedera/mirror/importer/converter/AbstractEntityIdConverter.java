@@ -40,6 +40,7 @@ public abstract class AbstractEntityIdConverter implements AttributeConverter<En
     @Override
     public Long convertToDatabaseColumn(EntityId entityId) {
         if (entityId == null) {
+            // should modify this to write 0. Check tests still pass
             return null;
         }
         return entityId.getId();

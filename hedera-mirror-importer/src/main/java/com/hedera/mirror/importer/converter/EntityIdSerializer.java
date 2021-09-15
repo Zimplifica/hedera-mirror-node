@@ -37,6 +37,7 @@ public class EntityIdSerializer extends JsonSerializer<EntityId> {
         if (value != null) {
             gen.writeNumber(value.getId());
         } else {
+            // should modify this to write 0. Check tests still pass
             gen.writeNull();
         }
     }

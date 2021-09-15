@@ -75,8 +75,7 @@ alter table file_data
     add constraint file_data__pk primary key (consensus_timestamp, entity_id);
 
 -- live_hash
--- alter table live_hash
---     add constraint live_hash__pk primary key (consensus_timestamp, entity_id);
+-- add entity_id to index when added as column
 alter table live_hash
     add constraint live_hash__pk primary key (consensus_timestamp);
 

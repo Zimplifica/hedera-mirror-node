@@ -135,36 +135,26 @@ from topic_message_temp;
 drop table if exists topic_message_temp;
 
 -- populate transaction_payer_account_id distribution column on transfer tables
-SELECT NOW();
-select 'assessed_custom_fee insert';
 insert into assessed_custom_fee
 select acft.amount, acft.collector_account_id, acft.consensus_timestamp, acft.token_id, t.payer_account_id as transaction_payer_account_id
 from assessed_custom_fee_temp acft
 join transaction t on acft.consensus_timestamp = t.consensus_ns;
 
-SELECT NOW();
-select 'crypto_transfer insert';
 insert into crypto_transfer
 select cft.entity_id, cft.consensus_timestamp, cft.amount, t.payer_account_id as transaction_payer_account_id
 from crypto_transfer_temp cft
 join transaction t on cft.consensus_timestamp = t.consensus_ns;
 
-SELECT NOW();
-select 'non_fee_transfer insert';
 insert into non_fee_transfer
 select nft.entity_id, nft.consensus_timestamp, nft.amount, t.payer_account_id as transaction_payer_account_id
 from non_fee_transfer_temp nft
 join transaction t on nft.consensus_timestamp = t.consensus_ns;
 
-SELECT NOW();
-select 'nft_transfer insert';
 insert into nft_transfer
 select nft.consensus_timestamp, nft.receiver_account_id, nft.sender_account_id, nft.serial_number, nft.token_id, t.payer_account_id as transaction_payer_account_id
 from nft_transfer_temp nft
 join transaction t on nft.consensus_timestamp = t.consensus_ns;
 
-SELECT NOW();
-select 'token_transfer insert';
 insert into token_transfer
 select ttt.token_id, ttt.account_id, ttt.consensus_timestamp, ttt.amount, t.payer_account_id as transaction_payer_account_id
 from token_transfer_temp ttt

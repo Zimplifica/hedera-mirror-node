@@ -39,6 +39,7 @@ public class LiveHash implements Persistable<Long> {
 
     private byte[] livehash;
 
+    // add missing entity columns
     //    @Convert(converter = UnknownIdConverter.class)
 //    private EntityId entityId;
 

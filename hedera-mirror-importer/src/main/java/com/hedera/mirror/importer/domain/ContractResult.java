@@ -45,6 +45,7 @@ public class ContractResult implements Persistable<Long> {
 
     private Long gasUsed;
 
+    // add missing entity columns
 //    @Convert(converter = AccountIdConverter.class)
 //    private EntityId accountId;
 //

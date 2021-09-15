@@ -26,5 +26,3 @@ drop table if exists transaction_signature cascade;
 drop table if exists t_entity_types cascade;
 drop table if exists t_transaction_results cascade;
 drop table if exists t_transaction_types cascade;
---drop type token_supply_type;
---drop type token_type;

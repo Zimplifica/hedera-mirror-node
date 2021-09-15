@@ -16,16 +16,16 @@ select create_distributed_table('account_balance', 'account_id', colocate_with =
 -- account_balance_file
 select create_distributed_table('account_balance_file', 'node_account_id', colocate_with => 'entity');
 
--- address_book - as is distributed query won't work for address book. Need to add file_id to address_book_entry
+-- address_book - leave as is until it can be colocated with address_book_entry using file_id
 -- select create_distributed_table('address_book', 'file_id', colocate_with => 'entity');
 
--- address_book_entry
+-- address_book_entry - add file_id to be used for distribution. Initially considered node_account_id
 -- select create_distributed_table('address_book_entry', 'node_account_id', colocate_with => 'entity');
 
--- address_book_service_endpoint
+-- address_book_service_endpoint - add file_id to be used for distribution. Initially considered node_id
 -- select create_distributed_table('address_book_service_endpoint', 'node_id', colocate_with => 'entity');
 
--- contract_result, leave as local table until contract_result is updated with entity_id etc
+-- contract_result, leave as local table until contract_result is updated with entity_id distribution column etc
 -- select create_distributed_table('contract_result', 'entity_id', colocate_with => 'entity');
 
 -- crypto_transfer
@@ -83,9 +83,8 @@ select create_distributed_table('token_transfer', 'transaction_payer_account_id'
 select create_distributed_table('topic_message', 'entity_id', colocate_with => 'entity');
 
 -- transaction
--- unclear the right distribution column to use for transactions.
--- entity_id and payer_account_id were considered but full outer joins with non distribution columns aren't supported with citus
--- for now leave as growing list on coordinator node with old partitions being removed for hot path
+-- may revisit the right distribution column to use for transactions.
+-- entity_id and payer_account_id were considered since full outer joins with non distribution columns aren't supported with citus
 select create_distributed_table('transaction', 'payer_account_id', colocate_with => 'entity');
 
 -- transaction_signature

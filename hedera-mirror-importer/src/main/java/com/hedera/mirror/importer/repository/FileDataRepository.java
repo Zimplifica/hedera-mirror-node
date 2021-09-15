@@ -37,6 +37,7 @@ public interface FileDataRepository extends CrudRepository<FileData, Long> {
     Optional<FileData> findLatestMatchingFile(long consensusTimestamp, long encodedEntityId,
                                               List<Integer> transactionTypes);
 
+    // optimized for query distribution but we should explore other methods
     @Query(value = "select * from file_data where consensus_timestamp > ?1 and consensus_timestamp < ?2 and entity_id = 101 " +
             "union " +
             "select * from file_data where consensus_timestamp > ?1 and consensus_timestamp < ?2 and entity_id = 102 " +

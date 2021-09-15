@@ -28,6 +28,7 @@ import com.hedera.mirror.importer.domain.AccountBalanceFile;
 public interface AccountBalanceFileRepository extends StreamFileRepository<AccountBalanceFile, Long> {
 
     @Override
+    // when <dbName>.multi_task_query_log_level = 'error' default to node 3 to ensure optimized query
     @Query(value = "select * from account_balance_file where node_account_id = 3 order by consensus_timestamp desc " +
             "limit 1", nativeQuery = true)
     Optional<AccountBalanceFile> findLatest();

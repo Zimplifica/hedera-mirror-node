@@ -5,7 +5,7 @@ PGCONF="${PGCONF:-/var/lib/postgresql/data}"
 PGHBA="${PGCONF}/pg_hba.conf"
 DB_SPECIFIC_SQL="alter user :ownerUsername with createrole;"
 
-# TimescaleDB v2 schema no longer creates the REST API user, while v1 schema still does
+# v2 schema no longer creates the REST API user, while v1 schema still does
 if [[ "${TIMESCALEDB}" == "true" ]]; then
   DB_SPECIFIC_SQL="create user :restUsername with login password :'restPassword' in role readonly;"
 fi
@@ -73,9 +73,10 @@ alter default privileges in schema :dbSchema grant usage on sequences to readwri
 -- Alter search path
 \connect postgres postgres
 alter database :dbName set search_path = :dbSchema, public;
+-- set multi_task_query_log_level to error to pick up on optimization opportunities in testing
 alter database :dbName set :dbName.multi_task_query_log_level = 'error';
 
--- add worker nodes. Hard coded for now and varies based on scale deployment count
+-- add worker nodes. Varies based on number of worked nodes. Needs to be manually for now after scaled deployment.
 -- select * from citus_add_node('citus-exp_worker_1', 5432);
 -- select * from citus_add_node('citus-exp_worker_2', 5432);
 -- select * from citus_add_node('citus-exp_worker_3', 5432);

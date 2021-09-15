@@ -2,6 +2,7 @@
 -- Add partitioning logic to tables
 -------------------
 
+-- partman extension automation of partitioning
 -- create role partman with login;
 -- grant all on schema ${mirror-schema} to partman;
 -- grant all on all tables in schema ${mirror-schema} to partman;
@@ -9,9 +10,13 @@
 -- grant execute on all procedures in schema ${mirror-schema} to partman; -- PG11+ only
 -- grant all on schema ${mirror-schema} to partman;
 
+-- timestamp constants for year starts and ends
 -- \set endOf2019Ns 1577836799000000000
 -- \set endOf2020Ns 1609459199000000000
 -- \set endOf2021Ns 1640995199000000000
+
+-- can't automatically partition for now as nanoseconds are not supported by p_interval custom, also they change per year
+-- select partman.create_parent('account_balance', 'consensus_timestamp', 'native', '', p_start_partition := '0');
 
 -- account_balance
 create table acc_bal_2019 partition of account_balance
@@ -20,9 +25,6 @@ create table acc_bal_2020 partition of account_balance
     for values from (1577836799000000000) to (1609459199000000000);
 create table acc_bal_2021 partition of account_balance
     for values from (1609459199000000000) to (1640995199000000000);
-
--- can't automatically partition for now as nanoseconds are not supported by p_interval custom, also they change per year
--- select partman.create_parent('account_balance', 'consensus_timestamp', 'native', '', p_start_partition := '0');
 
 -- account_balance_file
 create table acc_bal_file_2019 partition of account_balance_file
@@ -50,7 +52,7 @@ create table crypto_transfer_2021 partition of crypto_transfer
 --     for values from (1609459199000000000) to (1640995199000000000);
 
 -- partial data issue exists since timestamps are null in those cases. Partitioning by id instead?
--- Should be do by 1k, 10k, 100k or 1M?
+-- Should we do by 1k, 10k, 100k or 1M?
 create table entity_0 partition of entity
     for values from (0) to (100000);
 create table entity_1 partition of entity

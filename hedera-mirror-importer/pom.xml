@@ -341,6 +341,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
+                <!-- temporarily add custom docker image for POC-->
                 <version>${jib.version}</version>
                 <configuration>
                     <container>

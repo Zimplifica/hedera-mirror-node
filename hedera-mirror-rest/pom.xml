@@ -114,6 +114,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
+                <!-- temporarily add custom docker image for POC-->
                 <version>${docker-maven-plugin.version}</version>
                 <executions>
                     <execution>
