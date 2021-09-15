@@ -63,7 +63,7 @@ const v2SchemaConfigs = {
 };
 
 // if v2 schema is set in env use it, else default to v1
-const schemaConfigs = process.env.MIRROR_NODE_SCHEMA === 'v1' ? v1SchemaConfigs : v2SchemaConfigs;
+const schemaConfigs = process.env.MIRROR_NODE_SCHEMA === 'v2' ? v2SchemaConfigs : v1SchemaConfigs;
 
 const getConnection = () => {
   logger.info(`sqlConnection will use postgresql://${dbConfig.host}:${dbConfig.port}/${dbConfig.name}`);

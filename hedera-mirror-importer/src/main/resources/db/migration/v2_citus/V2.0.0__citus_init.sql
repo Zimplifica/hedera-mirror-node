@@ -171,7 +171,7 @@ create table if not exists live_hash
 --     entity_id           bigint null
 );
 
--- nft, should we partition by created_timestamp
+-- nft, should we partition by created_timestamp?
 create table if not exists nft
 (
     account_id         bigint,
@@ -340,7 +340,6 @@ create table if not exists token_transfer
 comment on table token_transfer is 'Crypto account token transfers';
 
 -- topic_message
--- need to update ingestion logic to write entity_id and then set to not null
 create table if not exists topic_message
 (
     consensus_timestamp   bigint   not null,
