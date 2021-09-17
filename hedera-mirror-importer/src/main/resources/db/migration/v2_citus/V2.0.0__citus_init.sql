@@ -7,17 +7,6 @@
 create type token_supply_type AS ENUM ('INFINITE', 'FINITE');
 create type token_type AS ENUM ('FUNGIBLE_COMMON', 'NON_FUNGIBLE_UNIQUE');
 
--- assessed_custom_fee
-create table if not exists assessed_custom_fee
-(
-    amount                       bigint not null,
-    collector_account_id         bigint not null,
-    consensus_timestamp          bigint not null,
-    token_id                     bigint,
-    transaction_payer_account_id bigint not null
-);
-comment on table assessed_custom_fee is 'Assessed custom fees for HTS transactions';
-
 -- account_balance
 create table if not exists account_balance
 (
@@ -75,6 +64,18 @@ create table if not exists address_book_service_endpoint
 );
 comment on table address_book_service_endpoint is 'Network address book node service endpoints';
 
+-- assessed_custom_fee
+create table if not exists assessed_custom_fee
+(
+    amount                       bigint   not null,
+    collector_account_id         bigint   not null,
+    consensus_timestamp          bigint   not null,
+    effective_payer_account_ids  bigint[] not null,
+    token_id                     bigint,
+    transaction_payer_account_id bigint   not null
+);
+comment on table assessed_custom_fee is 'Assessed custom fees for HTS transactions';
+
 -- contract_result
 -- need to update ingestion logic to write entity_id and then set to not null
 create table if not exists contract_result
@@ -108,6 +109,9 @@ create table if not exists custom_fee
     denominating_token_id bigint,
     maximum_amount        bigint,
     minimum_amount        bigint not null default 0,
+    net_of_transfers      boolean,
+    royalty_denominator   bigint,
+    royalty_numerator     bigint,
     token_id              bigint not null
 );
 comment on table custom_fee is 'HTS Custom fees';
@@ -115,22 +119,24 @@ comment on table custom_fee is 'HTS Custom fees';
 -- entity
 create table if not exists entity
 (
-    auto_renew_account_id bigint,
-    auto_renew_period     bigint,
-    created_timestamp     bigint,
-    deleted               boolean,
-    expiration_timestamp  bigint,
-    id                    bigint          not null,
-    key                   bytea,
-    memo                  text default '' not null,
-    modified_timestamp    bigint,
-    num                   bigint          not null,
-    proxy_account_id      bigint,
-    public_key            character varying,
-    realm                 bigint          not null,
-    shard                 bigint          not null,
-    submit_key            bytea,
-    type                  integer         not null
+    auto_renew_account_id            bigint,
+    auto_renew_period                bigint,
+    created_timestamp                bigint,
+    deleted                          boolean,
+    expiration_timestamp             bigint,
+    id                               bigint          not null,
+    key                              bytea,
+    max_automatic_token_associations integer,
+    memo                             text default '' not null,
+    modified_timestamp               bigint,
+    num                              bigint          not null,
+    proxy_account_id                 bigint,
+    public_key                       character varying,
+    realm                            bigint          not null,
+    receiver_sig_required            boolean         null,
+    shard                            bigint          not null,
+    submit_key                       bytea,
+    type                             integer         not null
 ) partition by range (id);
 comment on table entity is 'Network entity with state';
 
@@ -308,13 +314,14 @@ comment on table token is 'Token entity';
 --- token_account
 create table if not exists token_account
 (
-    account_id         bigint   not null,
-    associated         boolean  not null default false,
-    created_timestamp  bigint   not null,
-    freeze_status      smallint not null default 0,
-    kyc_status         smallint not null default 0,
-    modified_timestamp bigint   not null,
-    token_id           bigint   not null
+    account_id            bigint   not null,
+    associated            boolean  not null default false,
+    automatic_association boolean  not null default false,
+    created_timestamp     bigint   not null,
+    freeze_status         smallint not null default 0,
+    kyc_status            smallint not null default 0,
+    modified_timestamp    bigint   not null,
+    token_id              bigint   not null
 );
 comment on table token is 'Token account entity';
 
