@@ -135,7 +135,7 @@ create unique index if not exists token__id_timestamp
 alter table token_account
     add constraint token_account__pk primary key (account_id, token_id, modified_timestamp);
 create unique index if not exists token_acc__token_acc_timestamp
-    on token_account (token_id, account_id, created_timestamp);
+    on token_account (token_id, account_id, modified_timestamp);
 
 -- token_balance
 alter table token_balance

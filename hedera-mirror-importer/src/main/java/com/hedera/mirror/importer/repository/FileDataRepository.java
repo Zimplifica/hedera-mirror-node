@@ -37,10 +37,8 @@ public interface FileDataRepository extends CrudRepository<FileData, Long> {
     Optional<FileData> findLatestMatchingFile(long consensusTimestamp, long encodedEntityId,
                                               List<Integer> transactionTypes);
 
-    // optimized for query distribution but we should explore other methods
-    @Query(value = "select * from file_data where consensus_timestamp > ?1 and consensus_timestamp < ?2 and entity_id = 101 " +
-            "union " +
-            "select * from file_data where consensus_timestamp > ?1 and consensus_timestamp < ?2 and entity_id = 102 " +
-            "order by consensus_timestamp asc limit ?2", nativeQuery = true)
-    List<FileData> findAddressBooksAfter(long consensusTimestamp, long endConsensusTimestamp, long limit);
+    // Can be optimized for query distribution. Attempted 'or' and even union but we should explore other methods
+    @Query(value = "select * from file_data where consensus_timestamp > ?1 and consensus_timestamp < ?2 and " +
+            "entity_id in (101, 102) order by consensus_timestamp asc limit ?3", nativeQuery = true)
+    List<FileData> findAddressBooksBetween(long consensusTimestamp, long endConsensusTimestamp, long limit);
 }

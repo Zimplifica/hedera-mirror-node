@@ -39,8 +39,8 @@ public class AssessedCustomFeeWrapper {
 
     private final AssessedCustomFee assessedCustomFee;
 
-    public AssessedCustomFeeWrapper(long amount, long collectorAccountId, Long tokenId, long consensusTimestamp,
-                                    long transactionPayerAccountId) {
+    public AssessedCustomFeeWrapper(long amount, long collectorAccountId, PgArray effectivePayerAccountIds,
+                                    Long tokenId, long consensusTimestamp, Long transactionPayerAccountId) throws SQLException {
         assessedCustomFee = new AssessedCustomFee();
         assessedCustomFee.setAmount(amount);
         assessedCustomFee.setId(new AssessedCustomFee.Id(

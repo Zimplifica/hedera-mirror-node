@@ -23,7 +23,6 @@ package com.hedera.mirror.importer.repository.upsert;
 import com.hedera.mirror.importer.EnabledIfV2;
 
 @EnabledIfV2
-@SuppressWarnings("java:S2187")
 class ScheduleUpsertQueryGeneratorV2Test extends ScheduleUpsertQueryGeneratorTest {
     @Override
     protected String getInsertQuery() {
@@ -31,6 +30,6 @@ class ScheduleUpsertQueryGeneratorV2Test extends ScheduleUpsertQueryGeneratorTes
                 "schedule_id, transaction_body) select schedule_temp.consensus_timestamp, schedule_temp" +
                 ".creator_account_id, schedule_temp.executed_timestamp, schedule_temp.payer_account_id, schedule_temp" +
                 ".schedule_id, schedule_temp.transaction_body from schedule_temp where schedule_temp" +
-                ".consensus_timestamp is not null on conflict (schedule_id) do nothing";
+                ".consensus_timestamp is not null on conflict (schedule_id, consensus_timestamp) do nothing";
     }
 }
